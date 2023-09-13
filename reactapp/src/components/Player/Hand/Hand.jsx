@@ -13,7 +13,8 @@ export default function Hand() {
     return (
         <div className="horizontal-div hand-div">
             {hand.map(card => {
-                return <Card key={index} suit={card.suit} rank={card.rank} zIndex={index++} small={false} selected={card.selected} onClick={() => dispatch(selectCard(card.id))}/>
+                return <Card key={index} suitIndex={card.suit} rankIndex={card.rank} zIndex={index++}
+                    small={false} selected={card.selected} onClick={() => dispatch(selectCard(card.id))}/>
             })}
         </div>
     )

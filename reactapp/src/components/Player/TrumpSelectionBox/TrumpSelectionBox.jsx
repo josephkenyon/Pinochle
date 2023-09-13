@@ -5,7 +5,6 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 export default function TrumpSelectionBox() {
     const declareTrumpSuit = async (trumpSuit) => {
-        console.log(trumpSuit)
         await ConnectionService.getConnection().invoke("DeclareTrump", trumpSuit)
     }
 

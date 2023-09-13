@@ -1,41 +1,29 @@
 import '../../App.css'
-import React, { Component } from 'react';
+import React from 'react';
 
 const suits = ["♠︎", "♥︎", "♣︎", "♦︎"]
 const ranks = ["A", "10", "K", "Q", "J", "9"]
 
-export default class Card extends Component {
-    constructor(props) {
-        super(props);
+export default function Card({suitIndex, rankIndex, zIndex, small, selected, onClick}) {
+    const suit = suits[suitIndex]
+    const rank = ranks[rankIndex]
 
-        this.state = {
-            suit: suits[props.suit],
-            rank: ranks[props.rank],
-            zIndex: props.zIndex,
-            small: props.small || false,
-            selected: props.selected || false,
-            onClick: props.onClick
-        };
-    }
+    const colorClass = (suit == "♣︎" || suit == "♠︎") ? "card-black" : "card-red"
 
-    render() {
-        const colorClass = (this.state.suit == "♣︎" || this.state.suit == "♠︎") ? "card-black" : "card-red"
+    const smallClassClause = small ? "small-card" : "large-card"
+    const leftMarginClause = (zIndex > 0) ? (small ? "card-left-margin-small" : "card-left-margin-large") : ""
+    const topMarginClause = selected ? (small ? "card-top-margin-small" : "card-top-margin-large") : ""
 
-        const smallClassClause = this.state.small ? "small-card" : "large-card"
-        const leftMarginClause = (this.state.zIndex > 0) ? (this.state.small ? "card-left-margin-small" : "card-left-margin-large") : ""
-        const topMarginClause = this.state.selected ? (this.state.small ? "card-top-margin-small" : "card-top-margin-large") : ""
-
-        return (
-            <div className={["card", smallClassClause, colorClass, leftMarginClause, topMarginClause].join(" ")} style={{zIndex: this.state.zIndex}} onClick={() => this.state.onClick()}>
-                    <div className="card-tl" onClick={() => this.state.onClick()}>
-                        <div className={(this.state.small ? "card-value-small" : "card-value-large")} onClick={() => this.state.onClick()}>{this.state.rank}</div>
-                        <div className={(this.state.small ? "card-suit-small" : "card-value-large")} onClick={() => this.state.onClick()}>{this.state.suit}</div>
-                    </div>
-                    <div className="card-br">
-                        <div className={(this.state.small ? "card-value-small" : "card-value-large")} onClick={() => this.state.onClick()}>{this.state.rank}</div>
-                        <div className={(this.state.small ? "card-suit-small" : "card-value-large")} onClick={() => this.state.onClick()}>{this.state.suit}</div>
-                    </div>
-                </div>
-        )
-    }
+    return (
+        <div className={["card", smallClassClause, colorClass, leftMarginClause, topMarginClause].join(" ")} style={{zIndex: zIndex}} onClick={() => onClick()}>
+            <div className="card-tl">
+                <div className={(small ? "card-value-small" : "card-value-large")}>{rank}</div>
+                <div className={(small ? "card-suit-small" : "card-value-large")}>{suit}</div>
+            </div>
+            <div className="card-br">
+                <div className={(small ? "card-value-small" : "card-value-large")}>{rank}</div>
+                <div className={(small ? "card-suit-small" : "card-value-large")}>{suit}</div>
+            </div>
+        </div>
+    )
 }

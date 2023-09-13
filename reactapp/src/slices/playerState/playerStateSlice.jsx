@@ -72,7 +72,7 @@ export const playerStateSlice = createSlice({
 
         newHand.forEach(card => {
             if (card.id == action.payload) {
-                card.selected = true;
+                card.selected = !card.selected;
             } else {
                 card.selected = false;
             }
