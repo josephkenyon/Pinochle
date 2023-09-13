@@ -4,6 +4,7 @@ using webapi.Domain;
 using static webapi.Domain.Enums;
 using System.Collections.Concurrent;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace webapi.Hubs
 {
@@ -140,8 +141,6 @@ namespace webapi.Hubs
 
             playerState.ShowTrumpSelection = isDeclaringTrump && isPlayersTurn;
 
-            var meldResults = _gameContext.MeldResults.Where(meldResult => meldResult.GameName == playerConnectionData.GameName).ToList();
-
             if (ally != null)
             {
                 playerState.AllyState.Name = ally.Name;
@@ -154,7 +153,8 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    playerState.AllyState.DisplayedCards = meldResults.Single(result => result.PlayerIndex == allyIndex).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == ally.Name).ToList();
+                    playerState.AllyState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
                 }
             }
 
@@ -170,7 +170,8 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    playerState.LeftOpponentState.DisplayedCards = meldResults.Single(result => result.PlayerIndex == leftOpponentIndex).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == leftOpponent.Name).ToList();
+                    playerState.LeftOpponentState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
                 }
             }
 
@@ -186,9 +187,19 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    playerState.RightOpponentState.DisplayedCards = meldResults.Single(result => result.PlayerIndex == rightOpponentIndex).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == rightOpponent.Name).ToList();
+                    playerState.RightOpponentState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
                 }
             }
+
+            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
+
+            var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? "Waiting for player"}/{playerNames.ElementAtOrDefault(2) ?? "Waiting for player"}";
+            var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? "Waiting for player"}/{playerNames.ElementAtOrDefault(3) ?? "Waiting for player"}";
+
+            playerState.TeamOneScoreList = game.GetScoreLog(teamOneName, 0);
+            playerState.TeamTwoScoreList = game.GetScoreLog(teamTwoName, 1);
+            playerState.RoundBidResults = game.GetRoundBidResults();
 
             return playerState;
         }
@@ -301,6 +312,32 @@ namespace webapi.Hubs
             game.TrumpSuit = (Suit) trumpSuitIndex;
             game.Phase = Phase.Meld;
 
+            int teamOneScore = 0;
+            int teamTwoScore = 0;
+
+            var players = _gameContext.Players.Where(player => player.GameName == game.Name).ToList();
+            players.ForEach(player =>
+            {
+                var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == player.Name).ToList();
+                var meldResult = new MeldResult(cards, game.TrumpSuit);
+
+                if (player.PlayerIndex == 0 || player.PlayerIndex == 2)
+                {
+                    teamOneScore += meldResult.MeldValue;
+                }
+                else
+                {
+                    teamTwoScore += meldResult.MeldValue;
+                }
+            });
+
+            game.AddScore(0, teamOneScore);
+            game.AddScore(1, teamTwoScore);
+
+            var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
+            game.AddRoundBidResult(game.TrumpSuit, teamIndex, game.CurrentBid);
+
             _gameContext.SaveChanges();
 
             await UpdateClients(game.Name);
@@ -363,22 +400,6 @@ namespace webapi.Hubs
         private void StartNewRound(Game game, List<Player> players)
         {
             DealCards(game.Name, players);
-
-            players.ForEach(player =>
-            {
-                var playerCards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == player.Name).ToList();
-                var newMeldResult = new MeldResult(game.Name, player.PlayerIndex, playerCards, game.TrumpSuit);
-
-                var meldResult = _gameContext.MeldResults.Where(meldResult => meldResult.GameName == game.Name && meldResult.PlayerIndex == player.PlayerIndex).FirstOrDefault();
-                if (meldResult != null)
-                {
-                    meldResult = newMeldResult;
-                }
-                else
-                {
-                    game.MeldResults.Add(newMeldResult);
-                }
-            });
 
             game.Phase = Phase.Bidding;
             game.PlayerTurnIndex = game.IncrementAndGetStartingPlayerTurnIndex();

@@ -2,8 +2,8 @@ import '../../App.css'
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setConnection, setErrorMessage, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
-import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setShowBiddingBox,
-    setShowLastBid, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTrickState } from '../../slices/playerState/playerStateSlice';
+import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
+    setShowLastBid, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
 
@@ -24,9 +24,14 @@ export default function Entry() {
         })
 
         connection.on("UpdatePlayerState", (newState) => {
-            console.info("recieving player state update...")
-            console.info(newState)
+            console.debug("recieving player state update...")
+            console.debug(newState)
 
+            dispatch(setTeamOneName(newState.teamOneScoreList.shift()))
+            dispatch(setTeamTwoName(newState.teamTwoScoreList.shift()))
+            dispatch(setTeamOneScoreLog(newState.teamOneScoreList))
+            dispatch(setTeamTwoScoreLog(newState.teamTwoScoreList))
+            dispatch(setRoundBidResults(newState.roundBidResults))
             dispatch(setLastBid(newState.lastBid))
             dispatch(setCurrentBid(newState.currentBid))
             dispatch(setIsReady(newState.isReady))

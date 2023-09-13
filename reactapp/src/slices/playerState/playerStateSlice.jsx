@@ -1,8 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
+    teamOneName: "",
+    teamTwoName: "",
+    teamOneScoreLog: [],
+    teamTwoScoreLog: [],
+    roundBidResults: [],
     lastBid: -1,
-    currentBid: 15,
     hasState: false,
     isReady: false,
     showReady: false,
@@ -22,6 +26,21 @@ export const playerStateSlice = createSlice({
   name: 'playerState',
   initialState,
   reducers: {
+    setTeamOneName: (state, action) => {
+        state.teamOneName = action.payload
+    },
+    setTeamTwoName: (state, action) => {
+        state.teamTwoName = action.payload
+    },
+    setTeamOneScoreLog: (state, action) => {
+        state.teamOneScoreLog = action.payload
+    },
+    setTeamTwoScoreLog: (state, action) => {
+        state.teamTwoScoreLog = action.payload
+    },
+    setRoundBidResults: (state, action) => {
+        state.roundBidResults = action.payload
+    },
     setLastBid: (state, action) => {
         state.lastBid = action.payload
     },
@@ -83,7 +102,8 @@ export const playerStateSlice = createSlice({
   },
 })
 
-export const { setLastBid, setCurrentBid, setHasState, setIsReady, setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand,
-    setDisplayedCards, setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
+export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setCurrentBid, setHasState, setIsReady,
+    setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand, setDisplayedCards,
+    setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
 
 export default playerStateSlice.reducer

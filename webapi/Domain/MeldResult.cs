@@ -4,20 +4,10 @@ namespace webapi.Domain
 {
     public class MeldResult
     {
-        public Game? Game { get; set; }
-        public string GameName { get; set; }
-        public int PlayerIndex { get; set; }
         public int MeldValue { get; set; }
         public List<Card> MeldCards { get; set; }
 
-        public MeldResult() {
-            GameName = "Unknown";
-            MeldCards = new List<Card>();
-        }
-
-        public MeldResult(string gameName, int playerIndex, List<Card> cards, Suit trumpSuit) {
-            GameName = gameName;
-            PlayerIndex = playerIndex;
+        public MeldResult(List<Card> cards, Suit trumpSuit) {
             MeldValue = 0;
             MeldCards = new List<Card>();
 
@@ -41,6 +31,12 @@ namespace webapi.Domain
             var jacksOfDiamonds = cards.Where(card => card.Rank == Rank.Jack && card.Suit == Suit.Diamond).ToList();
             var queensOfSpades = cards.Where(card => card.Rank == Rank.Queen && card.Suit == Suit.Spade).ToList();
             AddPinochles(jacksOfDiamonds, queensOfSpades);
+        }
+
+        public void SetResults(int meldValue, List<Card> meldCards)
+        {
+            MeldValue = meldValue;
+            MeldCards = meldCards;
         }
 
         private void AddNinesOfTrump(List<Card> ninesOfTrump)

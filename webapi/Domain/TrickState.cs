@@ -1,6 +1,4 @@
-﻿using static webapi.Domain.Enums;
-
-namespace webapi.Domain
+﻿namespace webapi.Domain
 {
     public class TrickState
     {
