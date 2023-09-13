@@ -8,6 +8,12 @@ namespace webapi.Data
     {
         public GameContext(DbContextOptions<GameContext> options) : base(options) { }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+            base.OnConfiguring(optionsBuilder);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -33,8 +39,11 @@ namespace webapi.Data
                 .WithOne(meldResult => meldResult.Game)
                 .HasForeignKey(meldResult => meldResult.GameName);
 
+            modelBuilder.Entity<PlayerConnectionData>()
+                .HasKey(playerConnection => new { playerConnection.GameName, playerConnection.PlayerName });
+
             modelBuilder.Entity<Player>()
-                .HasKey(player => player.Name);
+                .HasKey(player => new { player.GameName, player.Name });
 
             modelBuilder.Entity<Player>()
                 .HasOne(player => player.Game)
@@ -54,6 +63,7 @@ namespace webapi.Data
         }
 
         public DbSet<Game> Games { get; set; }
+        public DbSet<PlayerConnectionData> PlayerConnections { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<MeldResult> MeldResults { get; set; }
         public DbSet<Card> Cards { get; set; }

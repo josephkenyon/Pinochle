@@ -15,8 +15,9 @@ namespace webapi.Domain
             MeldCards = new List<Card>();
         }
 
-        public MeldResult(string gameName, List<Card> cards, Suit trumpSuit) {
+        public MeldResult(string gameName, int playerIndex, List<Card> cards, Suit trumpSuit) {
             GameName = gameName;
+            PlayerIndex = playerIndex;
             MeldValue = 0;
             MeldCards = new List<Card>();
 

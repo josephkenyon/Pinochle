@@ -28,5 +28,10 @@ namespace webapi.Domain
             Suit = suit;
             Rank = rank;
         }
+
+        public CardState CreateCardState()
+        {
+            return new CardState(Suit, Rank, Id);
+        }
     }
 }

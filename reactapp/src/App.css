@@ -5,11 +5,85 @@
   text-align: center;
 }
 
+.checkbox {
+  width: 25px;
+  height: 25px;
+}
+
+
+.players-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.player-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  width: 85vh;
+  height: 40vh;
+}
+
+.opponents-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: row;
+}
+
+.opponent-spacer {
+  width: 5vw;
+}
+
+.opponent-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 40vh;
+  height: 25vh;
+}
+
+.right-opponent-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  width: 40vh;
+  height: 25vh;
+}
+
+.ally-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 40vh;
+  height: 25vh;
+}
+
+.hand-div {
+  margin-top: 30px;
+}
+
 .vertical-div {
     display: flex;
     align-items: center;
     text-align: center;
     flex-direction: column;
+}
+
+.horizontal-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: row;
 }
 
 .input {
@@ -55,7 +129,105 @@
 }
 
 .card {
-  padding: 2em;
+  display: flex;
+  background-color: #FFF;
+}
+
+.large-card {
+  width: 130px;
+  height: 200px;
+  border-radius: 15px;
+  border: 3px solid black;
+  padding: 4px;
+  padding-left: 16px;
+}
+
+.small-card {
+  font-size: 1.0em !important;
+  width: 65px;
+  height: 100px;
+  border-radius: 10px;
+  border: 2px solid black;
+  padding: 2px;
+  padding-left: 8px;
+}
+
+.card-black {
+  color: black;
+}
+
+.card-red {
+  color: red;
+}
+
+.card-value-large {
+  font-size: 28px;
+}
+
+.card-suit-large {
+  font-size: 30px;
+}
+
+.card-value-small {
+  font-size: 14px;
+}
+
+.card-suit-small {
+  font-size: 15px;
+}
+
+.card-left-margin-large {
+  margin-left: -48px;
+}
+
+.card-left-margin-small {
+  margin-left: -24px;
+}
+
+.card-top-margin-large {
+  margin-top: -48px;
+}
+
+.card-top-margin-small {
+  margin-top: -24px;
+}
+
+.card-tl {
+  display: flex;
+  flex-grow: 1;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+
+.card-br {
+  display: flex;
+  flex-grow: 1;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items:  flex-start;
+  margin-right: 16px;
+  transform:rotate(-180deg);
+}
+
+
+label {
+  font-size: 1.5em;
+}
+
+span {
+  font-size: 1.5em;
+}
+
+.alert-danger {
+  color: #ffffff;
+  background-color: #662222FF;
+  min-width: 20vw;
+  z-index: 100;
+}
+
+.trump-dropdown {
+  background-color: #111111 !important;
+  color: white;
 }
 
 .read-the-docs {

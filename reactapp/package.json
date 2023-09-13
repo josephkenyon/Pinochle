@@ -11,8 +11,13 @@
     "predev": "node aspnetcore-https.js"
   },
   "dependencies": {
+    "@microsoft/signalr": "^7.0.10",
+    "@reduxjs/toolkit": "^1.9.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-bootstrap": "^2.8.0",
+    "react-dom": "^18.2.0",
+    "react-numeric-input": "^2.2.3",
+    "react-redux": "^8.1.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

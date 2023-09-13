@@ -20,7 +20,7 @@ namespace tests
                 new Card { Rank = Rank.Queen, Suit = Suit.Spade },
             };
 
-            var result = new MeldResult("test", cards, Suit.Heart);
+            var result = new MeldResult("test", 0, cards, Suit.Heart);
 
             Assert.True(result.MeldCards.Count == 7);
             Assert.True(result.MeldValue == 17);
@@ -40,7 +40,7 @@ namespace tests
                 new Card { Rank = Rank.Ace, Suit = Suit.Heart },
             };
 
-            var result = new MeldResult("test", cards, Suit.Heart);
+            var result = new MeldResult("test", 0, cards, Suit.Heart);
 
             Assert.True(result.MeldCards.Count == 6);
             Assert.True(result.MeldValue == 16);
@@ -61,7 +61,7 @@ namespace tests
                 new Card { Rank = Rank.Nine, Suit = Suit.Spade },
             };
 
-            var result = new MeldResult("test", cards, Suit.Spade);
+            var result = new MeldResult("test", 0, cards, Suit.Spade);
 
             Assert.True(result.MeldCards.Count == 2);
             Assert.True(result.MeldValue == 2);
@@ -79,7 +79,7 @@ namespace tests
                 new Card { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult("test", cards, Suit.Spade);
+            var result = new MeldResult("test", 0, cards, Suit.Spade);
 
             Assert.True(result.MeldValue == 8);
         }
@@ -98,7 +98,7 @@ namespace tests
                 new Card { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult("test", cards, Suit.Spade);
+            var result = new MeldResult("test", 0, cards, Suit.Spade);
 
             Assert.True(result.MeldValue == 16);
         }
@@ -116,7 +116,7 @@ namespace tests
                 new Card { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult("test", cards, Suit.Spade);
+            var result = new MeldResult("test", 0, cards, Suit.Spade);
 
             Assert.True(result.MeldValue == 14);
         }
