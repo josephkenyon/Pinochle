@@ -29,7 +29,7 @@ export const playerStateSlice = createSlice({
         state.currentBid = action.payload
     },
     setHasState: (state, action) => {
-        state.hasInitialState = action.payload
+        state.hasState = action.payload
     },
     setIsReady: (state, action) => {
         state.isReady = action.payload

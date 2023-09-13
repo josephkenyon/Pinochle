@@ -7,14 +7,14 @@ import Hand from './Hand/Hand';
 import { useSelector } from 'react-redux';
 
 export default function HeroPlayer() {
-    const hasInitialState = useSelector((state) => state.playerState.hasInitialState)
+    const hasState = useSelector((state) => state.playerState.hasState)
     const showReady = useSelector((state) => state.playerState.showReady)
     const showBiddingBox = useSelector((state) => state.playerState.showBiddingBox)
     const showTrumpSelection = useSelector((state) => state.playerState.showTrumpSelection)
 
     return (
         <div className='player-div'>
-            { hasInitialState ?
+            { hasState ?
                 <div className="vertical-div">
                     { showReady ? <ReadyBox/> : null }
                     { showBiddingBox ? <BiddingBox/> : null }

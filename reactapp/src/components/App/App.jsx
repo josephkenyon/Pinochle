@@ -8,9 +8,9 @@ export default function App() {
     const loading = useSelector((state) => state.appState.loading)
     const connection = useSelector((state) => state.appState.connection)
     const errorMessage = useSelector((state) => state.appState.errorMessage)
-    const hasInitialState = useSelector((state) => state.playerState.hasInitialState)
+    const hasState = useSelector((state) => state.playerState.hasState)
 
-    const displayLoading = loading || (connection && !hasInitialState)
+    const displayLoading = loading || (connection && !hasState)
 
     return (
         <div className="vertical-div">
