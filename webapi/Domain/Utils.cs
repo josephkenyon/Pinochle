@@ -9,14 +9,14 @@ namespace webapi.Domain
             return cards[0].Id;
         }
 
-        public static List<Card> GetValidPlays(Card ledCard, List<Card> playedCards, List<Card> hand, Suit trumpSuit)
+        public static List<ICard> GetValidPlays(ICard ledCard, List<ICard> playedCards, List<ICard> hand, Suit trumpSuit)
         {
 
 
             return hand;
         }
 
-        public static int CompareCards(Suit trumpSuit, Suit ledSuit, Card card1, Card card2)
+        public static int CompareCards(Suit trumpSuit, Suit ledSuit, ICard card1, ICard card2)
         {
             var suitOneValue = GetSuitValue(trumpSuit, ledSuit, card1.Suit);
             var suitTwoValue = GetSuitValue(trumpSuit, ledSuit, card2.Suit);

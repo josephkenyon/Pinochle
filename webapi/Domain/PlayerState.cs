@@ -3,9 +3,8 @@
     public class PlayerState
     {
         public string Name { get; set; }
-        public List<CardState> Hand { get; set; }
-        public List<CardState> DisplayedCards { get; set; }
-        public TrickState TrickState { get; set; }
+        public List<Card> Hand { get; set; }
+        public List<Card> DisplayedCards { get; set; }
         public bool IsReady { get; set; }
         public bool ShowReady { get; set; }
         public int LastBid { get; set; }
@@ -16,9 +15,8 @@
 
         public PlayerState() {
             Name = "";
-            Hand = new List<CardState>();
-            DisplayedCards = new List<CardState>();
-            TrickState = new TrickState();
+            Hand = new List<Card>();
+            DisplayedCards = new List<Card>();
         }
     }
 }

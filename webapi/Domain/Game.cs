@@ -14,7 +14,6 @@ namespace webapi.Domain
         public int CurrentBid { get; set; }
         public Trick? CurrentTrick { get; set; }
         public List<Player> Players { get; set; }
-        public List<Card> Cards { get; set; }
         public string TeamOneScoresString { get; set; }
         public string TeamTwoScoresString { get; set; }
         public string RoundBidResults { get; set; }
@@ -25,7 +24,6 @@ namespace webapi.Domain
             Name = "Unknown";
             Phase = Phase.Initializing;
             Players = new List<Player>();
-            Cards = new List<Card>();
             TeamOneScoresString = "";
             TeamTwoScoresString = "";
             TeamOneCardsTakenIds = "";
@@ -46,16 +44,6 @@ namespace webapi.Domain
             TeamOneCardsTakenIds = "";
             TeamTwoCardsTakenIds = "";
             RoundBidResults = "";
-            Cards = new List<Card>();
-            var index = 0;
-            Enum.GetValues<Suit>().ToList().ForEach(suit =>
-            {
-                Enum.GetValues<Rank>().ToList().ForEach(rank =>
-                {
-                    Cards.Add(new Card(gameName, index++, suit, rank));
-                    Cards.Add(new Card(gameName, index++, suit, rank));
-                });
-            });
             StartingPlayerTurnIndex = -1;
         }
 
@@ -151,7 +139,7 @@ namespace webapi.Domain
 
             var newList = new List<int>();
 
-            var ids = teamIndex == 0 ? TeamOneScoresString.Split(";") : TeamTwoScoresString.Split(";");
+            var ids = teamIndex == 0 ? TeamOneCardsTakenIds.Split(";") : TeamTwoCardsTakenIds.Split(";");
             newList.AddRange(ids.Select(id => int.Parse(id)));
 
             return newList;

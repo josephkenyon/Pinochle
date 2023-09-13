@@ -10,18 +10,18 @@ namespace tests
         {
             var trumpSuit = Suit.Spade;
 
-            var ledCard = new Card { Rank = Rank.Queen, Suit = Suit.Heart };
+            var ledCard = new TestCard { Rank = Rank.Queen, Suit = Suit.Heart };
 
-            var playedCards = new List<Card>
+            var playedCards = new List<ICard>
             {
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
             };
 
-            var hand = new List<Card>
+            var hand = new List<ICard>
             {
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
-                new Card { Rank = Rank.Ace, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Diamond },
             };
 
             var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, trumpSuit);
@@ -38,18 +38,18 @@ namespace tests
         {
             var trumpSuit = Suit.Spade;
 
-            var ledCard = new Card { Rank = Rank.Queen, Suit = Suit.Heart };
+            var ledCard = new TestCard { Rank = Rank.Queen, Suit = Suit.Heart };
 
-            var playedCards = new List<Card>
+            var playedCards = new List<ICard>
             {
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
             };
 
-            var hand = new List<Card>
+            var hand = new List<ICard>
             {
-                new Card { Rank = Rank.Ace, Suit = Suit.Club },
-                new Card { Rank = Rank.Ace, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Club },
             };
 
             var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, trumpSuit);
@@ -65,18 +65,18 @@ namespace tests
         {
             var trumpSuit = Suit.Spade;
 
-            var ledCard = new Card { Rank = Rank.Queen, Suit = Suit.Heart };
+            var ledCard = new TestCard { Rank = Rank.Queen, Suit = Suit.Heart };
 
-            var playedCards = new List<Card>
+            var playedCards = new List<ICard>
             {
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
             };
 
-            var hand = new List<Card>
+            var hand = new List<ICard>
             {
-                new Card { Rank = Rank.Jack, Suit = Suit.Spade },
-                new Card { Rank = Rank.Ace, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Club },
             };
 
             var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, trumpSuit);
@@ -93,19 +93,19 @@ namespace tests
         {
             var trumpSuit = Suit.Spade;
 
-            var ledCard = new Card { Rank = Rank.Queen, Suit = Suit.Heart };
+            var ledCard = new TestCard { Rank = Rank.Queen, Suit = Suit.Heart };
 
-            var playedCards = new List<Card>
+            var playedCards = new List<ICard>
             {
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
             };
 
 
-            var hand = new List<Card>
+            var hand = new List<ICard>
             {
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
-                new Card { Rank = Rank.Jack, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Heart },
             };
 
             var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, trumpSuit);
@@ -123,19 +123,19 @@ namespace tests
         {
             var trumpSuit = Suit.Spade;
 
-            var ledCard = new Card { Rank = Rank.Ace, Suit = Suit.Heart };
+            var ledCard = new TestCard { Rank = Rank.Ace, Suit = Suit.Heart };
 
-            var playedCards = new List<Card>
+            var playedCards = new List<ICard>
             {
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
             };
 
 
-            var hand = new List<Card>
+            var hand = new List<ICard>
             {
-                new Card { Rank = Rank.Ace, Suit = Suit.Spade },
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
             };
 
             var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, trumpSuit);

@@ -102,7 +102,7 @@ namespace webapi.Hubs
                 Name = playerConnectionData.PlayerName
             };
 
-            playerState.Hand.AddRange(_gameContext.Cards.Where(card => card.GameName == playerConnectionData.GameName && card.PlayerName == playerConnectionData.PlayerName).Select(card => card.CreateCardState()));
+            playerState.Hand.AddRange(_gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.PlayerName).GetHand());
 
             var allyIndex = player.PlayerIndex + 2;
             if (allyIndex > 3)
@@ -153,8 +153,7 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == ally.Name).ToList();
-                    playerState.AllyState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    playerState.AllyState.DisplayedCards = new MeldResult(ally.GetHand(), game.TrumpSuit).MeldCards;
                 }
             }
 
@@ -170,8 +169,7 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == leftOpponent.Name).ToList();
-                    playerState.LeftOpponentState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    playerState.LeftOpponentState.DisplayedCards = new MeldResult(leftOpponent.GetHand(), game.TrumpSuit).MeldCards;
                 }
             }
 
@@ -187,8 +185,7 @@ namespace webapi.Hubs
 
                 if (isMeld)
                 {
-                    var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == rightOpponent.Name).ToList();
-                    playerState.RightOpponentState.DisplayedCards = new MeldResult(cards, game.TrumpSuit).MeldCards.Select(card => card.CreateCardState()).ToList();
+                    playerState.RightOpponentState.DisplayedCards = new MeldResult(rightOpponent.GetHand(), game.TrumpSuit).MeldCards;
                 }
             }
 
@@ -318,8 +315,7 @@ namespace webapi.Hubs
             var players = _gameContext.Players.Where(player => player.GameName == game.Name).ToList();
             players.ForEach(player =>
             {
-                var cards = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == player.Name).ToList();
-                var meldResult = new MeldResult(cards, game.TrumpSuit);
+                var meldResult = new MeldResult(player.GetHand(), game.TrumpSuit);
 
                 if (player.PlayerIndex == 0 || player.PlayerIndex == 2)
                 {
@@ -410,26 +406,45 @@ namespace webapi.Hubs
 
         private void DealCards(string gameName, List<Player> players)
         {
+            var cards = new List<Card>();
+
             var index = 0;
             var rng = new Random();
             var shuffleCount = rng.Next(20, 30);
-            var cards = _gameContext.Cards.Where(card => card.GameName == gameName).ToList();
+
+            Enum.GetValues<Suit>().ToList().ForEach(suit =>
+            {
+                Enum.GetValues<Rank>().ToList().ForEach(rank =>
+                {
+                    cards.Add(new Card(index++, suit, rank));
+                    cards.Add(new Card(index++, suit, rank));
+                });
+            });
 
             for (int i = 0; i < shuffleCount; i++)
             {
                 cards = cards.OrderBy(card => rng.Next()).ToList();
             }
 
-            foreach (var card in cards)
+            index = 0;
+            var startingIndex = 0;
+            foreach (var player in players)
             {
-                var player = players.Where(player => player.PlayerIndex == index).Single();
-                card.PlayerName = player.Name;
+                var hand = new List<Card>();
+                for (int i = startingIndex; i < startingIndex + 12; i++)
+                {
+                    hand.Add(cards[i]);
+                }
 
                 index++;
                 if (index > 3)
                 {
                     index = 0;
                 }
+
+                player.SetHand(hand);
+
+                startingIndex += 12;
             }
         }
 
@@ -454,7 +469,9 @@ namespace webapi.Hubs
             var suit = (Suit) suitIndex;
             var rank = (Rank) rankIndex;
 
-            var card = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == playerConnectionData.PlayerName && card.Suit == suit && card.Rank == rank).FirstOrDefault();
+            var player = _gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.GameName);
+
+            var card = player.GetHand().Where(card => card.Suit == suit && card.Rank == rank).FirstOrDefault();
             if (card == null)
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "You do not have that card to play.");
@@ -468,24 +485,23 @@ namespace webapi.Hubs
                     TrumpSuit = game.TrumpSuit
                 };
             } else {
-                var gameCards = _gameContext.Cards.Where(c => c.GameName == game.Name);
 
-                var ledCard = gameCards.Where(c => c.Id == game.CurrentTrick.LedCardId).Single();
-                var playedCards = gameCards.Where(c => game.CurrentTrick.GetIds().Contains(c.Id)).ToList();
-                var hand = gameCards.Where(c => c.GameName == game.Name && c.PlayerName == playerConnectionData.PlayerName).ToList();
+                //var ledCard = gameCards.Where(c => c.Id == game.CurrentTrick.LedCardId).Single();
+                //var playedCards = gameCards.Where(c => game.CurrentTrick.GetIds().Contains(c.Id)).ToList();
+                //var hand = gameCards.Where(c => c.GameName == game.Name && c.PlayerName == playerConnectionData.PlayerName).ToList();
 
-                var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, game.TrumpSuit);
+                //var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, game.TrumpSuit);
 
-                var canPlayCard = validPlays.Any(c => c.Suit == suit && c.Rank == rank);
+                //var canPlayCard = validPlays.Any(c => c.Suit == suit && c.Rank == rank);
 
-                if (!canPlayCard)
-                {
-                    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
-                }
+                //if (!canPlayCard)
+                //{
+                //    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
+                //}
             }
 
             game.CurrentTrick.SetCard(game.PlayerTurnIndex, card.Id);
-            card.PlayerName = "";
+            player.RemoveCard(card.Id);
 
             if (game.CurrentTrick.IsFull())
             {

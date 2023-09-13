@@ -8,19 +8,19 @@ namespace tests
         [Test]
         public void TestSingleRunWithMarriages()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Jack, Suit = Suit.Heart },
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
-                new Card { Rank = Rank.Ten, Suit = Suit.Heart },
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Spade },
-                new Card { Rank = Rank.Queen, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ten, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Spade },
             };
 
-            var result = new MeldResult(cards, Suit.Heart);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Heart);
 
             Assert.Multiple(() =>
             {
@@ -32,18 +32,18 @@ namespace tests
         [Test]
         public void TestSingleRun()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Nine, Suit = Suit.Heart },
-                new Card { Rank = Rank.Jack, Suit = Suit.Heart },
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
-                new Card { Rank = Rank.Ten, Suit = Suit.Heart },
-                new Card { Rank = Rank.Ace, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ten, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Ace, Suit = Suit.Heart },
             };
 
-            var result = new MeldResult(cards, Suit.Heart);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Heart);
 
             Assert.Multiple(() =>
             {
@@ -55,19 +55,19 @@ namespace tests
         [Test]
         public void TestNinesAround()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Nine, Suit = Suit.Club },
-                new Card { Rank = Rank.Nine, Suit = Suit.Club },
-                new Card { Rank = Rank.Nine, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Nine, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Nine, Suit = Suit.Heart },
-                new Card { Rank = Rank.Nine, Suit = Suit.Heart },
-                new Card { Rank = Rank.Nine, Suit = Suit.Spade },
-                new Card { Rank = Rank.Nine, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Spade },
             };
 
-            var result = new MeldResult(cards, Suit.Spade);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Spade);
 
             Assert.Multiple(() =>
             {
@@ -79,16 +79,16 @@ namespace tests
         [Test]
         public void TestJacksAround()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Jack, Suit = Suit.Club },
-                new Card { Rank = Rank.Jack, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Jack, Suit = Suit.Heart },
-                new Card { Rank = Rank.Jack, Suit = Suit.Spade },
-                new Card { Rank = Rank.Queen, Suit = Suit.Spade }
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult(cards, Suit.Spade);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Spade);
 
             Assert.That(result.MeldValue, Is.EqualTo(8));
         }
@@ -96,18 +96,18 @@ namespace tests
         [Test]
         public void TestQueensAround()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Jack, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Queen, Suit = Suit.Club },
-                new Card { Rank = Rank.Queen, Suit = Suit.Diamond },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Spade },
-                new Card { Rank = Rank.Queen, Suit = Suit.Spade }
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult(cards, Suit.Spade);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Spade);
 
             Assert.That(result.MeldValue, Is.EqualTo(16));
         }
@@ -115,17 +115,17 @@ namespace tests
         [Test]
         public void TestKingsAround()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.King, Suit = Suit.Club },
-                new Card { Rank = Rank.King, Suit = Suit.Diamond },
-                new Card { Rank = Rank.King, Suit = Suit.Heart },
-                new Card { Rank = Rank.Queen, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Spade },
-                new Card { Rank = Rank.Queen, Suit = Suit.Spade }
+                new TestCard { Rank = Rank.King, Suit = Suit.Club },
+                new TestCard { Rank = Rank.King, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.King, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Spade }
             };
 
-            var result = new MeldResult(cards, Suit.Spade);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Spade);
 
             Assert.That(result.MeldValue, Is.EqualTo(14));
         }
@@ -133,22 +133,22 @@ namespace tests
         [Test]
         public void Test()
         {
-            var cards = new List<Card>
+            var testCards = new List<TestCard>
             {
-                new Card { Rank = Rank.Ten, Suit = Suit.Spade },
-                new Card { Rank = Rank.Ten, Suit = Suit.Spade },
-                new Card { Rank = Rank.King, Suit = Suit.Spade },
-                new Card { Rank = Rank.Jack, Suit = Suit.Spade },
-                new Card { Rank = Rank.Jack, Suit = Suit.Heart },
-                new Card { Rank = Rank.Nine, Suit = Suit.Heart },
-                new Card { Rank = Rank.King, Suit = Suit.Club },
-                new Card { Rank = Rank.Ten, Suit = Suit.Diamond },
-                new Card { Rank = Rank.King, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Queen, Suit = Suit.Diamond },
-                new Card { Rank = Rank.Nine, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Ten, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Ten, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.King, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Spade },
+                new TestCard { Rank = Rank.Jack, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Heart },
+                new TestCard { Rank = Rank.King, Suit = Suit.Club },
+                new TestCard { Rank = Rank.Ten, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.King, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Queen, Suit = Suit.Diamond },
+                new TestCard { Rank = Rank.Nine, Suit = Suit.Diamond },
             };
 
-            var result = new MeldResult(cards, Suit.Heart);
+            var result = new MeldResult(testCards.Select(testCard => testCard.ToCard()).ToList(), Suit.Heart);
 
             Assert.That(result.MeldValue, Is.EqualTo(3));
         }

@@ -38,19 +38,10 @@ namespace webapi.Data
 
             modelBuilder.Entity<Trick>()
                 .HasKey(trick => trick.GameName);
-
-            modelBuilder.Entity<Card>()
-                .HasKey(card => new { card.GameName, card.Id, card.Suit, card.Rank });
-
-            modelBuilder.Entity<Card>()
-                .HasOne(card => card.Game)
-                .WithMany(game => game.Cards)
-                .HasForeignKey(card => card.GameName);
         }
 
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayerConnectionData> PlayerConnections { get; set; }
         public DbSet<Player> Players { get; set; }
-        public DbSet<Card> Cards { get; set; }
     }
 }
