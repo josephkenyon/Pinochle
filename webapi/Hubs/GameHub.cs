@@ -194,8 +194,8 @@ namespace webapi.Hubs
 
             var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
 
-            var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? "Waiting for player"}/{playerNames.ElementAtOrDefault(2) ?? "Waiting for player"}";
-            var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? "Waiting for player"}/{playerNames.ElementAtOrDefault(3) ?? "Waiting for player"}";
+            var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? ""}/{playerNames.ElementAtOrDefault(2) ?? ""}";
+            var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? ""}/{playerNames.ElementAtOrDefault(3) ?? ""}";
 
             playerState.TeamOneScoreList = game.GetScoreLog(teamOneName, 0);
             playerState.TeamTwoScoreList = game.GetScoreLog(teamTwoName, 1);
@@ -404,6 +404,8 @@ namespace webapi.Hubs
             game.Phase = Phase.Bidding;
             game.PlayerTurnIndex = game.IncrementAndGetStartingPlayerTurnIndex();
             game.CurrentBid = 14;
+            game.TeamOneCardsTakenIds = "";
+            game.TeamTwoCardsTakenIds = "";
         }
 
         private void DealCards(string gameName, List<Player> players)
@@ -429,6 +431,92 @@ namespace webapi.Hubs
                     index = 0;
                 }
             }
+        }
+
+        public async Task PlayCard(int suitIndex, int rankIndex)
+        {
+            var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
+
+            var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).SingleOrDefault();
+            if (game == null)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "A game with that name does not exist.");
+                return;
+            }
+
+            var gameIsDeclaringTrump = game.Phase == Phase.Playing;
+            if (!gameIsDeclaringTrump)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Game is not currently in a playing phase.");
+                return;
+            }
+
+            var suit = (Suit) suitIndex;
+            var rank = (Rank) rankIndex;
+
+            var card = _gameContext.Cards.Where(card => card.GameName == game.Name && card.PlayerName == playerConnectionData.PlayerName && card.Suit == suit && card.Rank == rank).FirstOrDefault();
+            if (card == null)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "You do not have that card to play.");
+                return;
+            }
+
+            if (game.CurrentTrick == null) {
+                game.CurrentTrick = new Trick
+                {
+                    LedSuit = suit,
+                    TrumpSuit = game.TrumpSuit
+                };
+            } else {
+                var gameCards = _gameContext.Cards.Where(c => c.GameName == game.Name);
+
+                var ledCard = gameCards.Where(c => c.Id == game.CurrentTrick.LedCardId).Single();
+                var playedCards = gameCards.Where(c => game.CurrentTrick.GetIds().Contains(c.Id)).ToList();
+                var hand = gameCards.Where(c => c.GameName == game.Name && c.PlayerName == playerConnectionData.PlayerName).ToList();
+
+                var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, game.TrumpSuit);
+
+                var canPlayCard = validPlays.Any(c => c.Suit == suit && c.Rank == rank);
+
+                if (!canPlayCard)
+                {
+                    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
+                }
+            }
+
+            game.CurrentTrick.SetCard(game.PlayerTurnIndex, card.Id);
+            card.PlayerName = "";
+
+            if (game.CurrentTrick.IsFull())
+            {
+                var cardIds = game.CurrentTrick.GetIds();
+
+                var winningPlayerIndex = GetWinningPlayerIndex(cardIds);
+
+                var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
+                game.AddCardIds(teamIndex, cardIds);
+                game.CurrentTrick = new Trick();
+
+                game.PlayerTurnIndex = winningPlayerIndex;
+            }
+            else
+            {
+                game.PlayerTurnIndex++;
+                if (game.PlayerTurnIndex > 3)
+                {
+                    game.PlayerTurnIndex = 0;
+                }
+            }
+
+            _gameContext.SaveChanges();
+
+            await UpdateClients(game.Name);
+        }
+
+        private int GetWinningPlayerIndex(List<int> ids)
+        {
+            return 0;
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)

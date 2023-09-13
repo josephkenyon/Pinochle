@@ -14,6 +14,7 @@ const initialState = {
     showBiddingBox: false,
     showTrumpSelection: false,
     showSwapPlayerIndex: false,
+    hasSelectedCard: false,
     hand: [],
     displayedCards: [],
     trickState: {},
@@ -92,6 +93,7 @@ export const playerStateSlice = createSlice({
         newHand.forEach(card => {
             if (card.id == action.payload) {
                 card.selected = !card.selected;
+                state.hasSelectedCard = card.selected;
             } else {
                 card.selected = false;
             }

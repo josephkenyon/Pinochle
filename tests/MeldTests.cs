@@ -22,8 +22,11 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Heart);
 
-            Assert.True(result.MeldCards.Count == 7);
-            Assert.True(result.MeldValue == 17);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.MeldCards, Has.Count.EqualTo(7));
+                Assert.That(result.MeldValue, Is.EqualTo(17));
+            });
         }
 
         [Test]
@@ -42,8 +45,11 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Heart);
 
-            Assert.True(result.MeldCards.Count == 6);
-            Assert.True(result.MeldValue == 16);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.MeldCards, Has.Count.EqualTo(6));
+                Assert.That(result.MeldValue, Is.EqualTo(16));
+            });
         }
 
         [Test]
@@ -63,8 +69,11 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Spade);
 
-            Assert.True(result.MeldCards.Count == 2);
-            Assert.True(result.MeldValue == 2);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.MeldCards, Has.Count.EqualTo(2));
+                Assert.That(result.MeldValue, Is.EqualTo(2));
+            });
         }
 
         [Test]
@@ -81,7 +90,7 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Spade);
 
-            Assert.True(result.MeldValue == 8);
+            Assert.That(result.MeldValue, Is.EqualTo(8));
         }
 
         [Test]
@@ -100,7 +109,7 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Spade);
 
-            Assert.True(result.MeldValue == 16);
+            Assert.That(result.MeldValue, Is.EqualTo(16));
         }
 
         [Test]
@@ -118,7 +127,7 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Spade);
 
-            Assert.True(result.MeldValue == 14);
+            Assert.That(result.MeldValue, Is.EqualTo(14));
         }
 
         [Test]
@@ -141,7 +150,7 @@ namespace tests
 
             var result = new MeldResult(cards, Suit.Heart);
 
-            Assert.True(result.MeldValue == 3);
+            Assert.That(result.MeldValue, Is.EqualTo(3));
         }
     }
 }

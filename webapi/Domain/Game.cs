@@ -12,13 +12,14 @@ namespace webapi.Domain
         public int PlayerTurnIndex { get; set; }
         public int StartingPlayerTurnIndex { private get; set; }
         public int CurrentBid { get; set; }
-        public int TeamTookBidIndex { get; set; }
         public Trick? CurrentTrick { get; set; }
         public List<Player> Players { get; set; }
         public List<Card> Cards { get; set; }
         public string TeamOneScoresString { get; set; }
         public string TeamTwoScoresString { get; set; }
         public string RoundBidResults { get; set; }
+        public string TeamOneCardsTakenIds { get; set; }
+        public string TeamTwoCardsTakenIds { get; set; }
 
         public Game() {
             Name = "Unknown";
@@ -27,6 +28,8 @@ namespace webapi.Domain
             Cards = new List<Card>();
             TeamOneScoresString = "";
             TeamTwoScoresString = "";
+            TeamOneCardsTakenIds = "";
+            TeamTwoCardsTakenIds = "";
             RoundBidResults = "";
             StartingPlayerTurnIndex = -1;
         }
@@ -40,6 +43,8 @@ namespace webapi.Domain
             };
             TeamOneScoresString = "";
             TeamTwoScoresString = "";
+            TeamOneCardsTakenIds = "";
+            TeamTwoCardsTakenIds = "";
             RoundBidResults = "";
             Cards = new List<Card>();
             var index = 0;
@@ -121,6 +126,33 @@ namespace webapi.Domain
 
                 newList.Add(new RoundBidResult(suit, int.Parse(resultArray[1]), int.Parse(resultArray[2])));
             }
+
+            return newList;
+        }
+
+        public void AddCardIds(int teamIndex, List<int> cardIds)
+        {
+            var idsList = (teamIndex == 0 ? TeamOneCardsTakenIds : TeamTwoCardsTakenIds).Split(";").ToList();
+            idsList.RemoveAll(string.IsNullOrEmpty);
+            idsList.AddRange(cardIds.Select(id => id.ToString()));
+
+            if (teamIndex == 0)
+            {
+                TeamOneCardsTakenIds = string.Join(";", idsList);
+            }
+            else
+            {
+                TeamTwoCardsTakenIds = string.Join(";", idsList);
+            }
+        }
+
+        public List<int> GetCardIds(int teamIndex)
+        {
+
+            var newList = new List<int>();
+
+            var ids = teamIndex == 0 ? TeamOneScoresString.Split(";") : TeamTwoScoresString.Split(";");
+            newList.AddRange(ids.Select(id => int.Parse(id)));
 
             return newList;
         }

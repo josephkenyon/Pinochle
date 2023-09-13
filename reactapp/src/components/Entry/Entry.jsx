@@ -27,6 +27,7 @@ export default function Entry() {
             console.debug("recieving player state update...")
             console.debug(newState)
 
+            dispatch(setErrorMessage(''))
             dispatch(setTeamOneName(newState.teamOneScoreList.shift()))
             dispatch(setTeamTwoName(newState.teamTwoScoreList.shift()))
             dispatch(setTeamOneScoreLog(newState.teamOneScoreList))
