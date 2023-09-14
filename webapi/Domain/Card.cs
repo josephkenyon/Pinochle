@@ -2,7 +2,7 @@
 
 namespace webapi.Domain
 {
-    public class Card : ICard
+    public class Card
     {
         public int Id { get; set; }
         public Suit Suit { get; set; }
@@ -14,5 +14,7 @@ namespace webapi.Domain
             Suit = suit;
             Rank = rank;
         }
+
+        public TrickCard ToTrickCard() => new(0, Suit, Rank, 4);
     }
 }

@@ -1,7 +1,7 @@
 import '../../App.css'
 import React from 'react';
 
-const suits = ["♣︎", "♦︎", "♥︎", "♠︎"]
+const suits = ["♠︎", "♥︎", "♣︎", "♦︎"]
 const ranks = ["A", "10", "K", "Q", "J", "9"]
 
 export default function Card({suitIndex, rankIndex, zIndex, small, selected, onClick}) {

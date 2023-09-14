@@ -393,9 +393,9 @@ namespace webapi.Hubs
             await UpdateClients(game.Name);
         }
 
-        private void StartNewRound(Game game, List<Player> players)
+        private static void StartNewRound(Game game, List<Player> players)
         {
-            DealCards(game.Name, players);
+            DealCards(players);
 
             game.Phase = Phase.Bidding;
             game.PlayerTurnIndex = game.IncrementAndGetStartingPlayerTurnIndex();
@@ -404,7 +404,7 @@ namespace webapi.Hubs
             game.TeamTwoCardsTakenIds = "";
         }
 
-        private void DealCards(string gameName, List<Player> players)
+        private static void DealCards(List<Player> players)
         {
             var cards = new List<Card>();
 
@@ -441,6 +441,29 @@ namespace webapi.Hubs
                 {
                     index = 0;
                 }
+
+                hand.Sort((a, b) =>
+                {
+                    if ((int) a.Suit > (int) b.Suit)
+                    {
+                        return 1;
+                    }
+                    else if ((int) a.Suit < (int) b.Suit)
+                    {
+                        return -1;
+                    }
+
+                    if ((int) a.Rank > (int) b.Rank)
+                    {
+                        return 1;
+                    }
+                    else if ((int) a.Rank < (int) b.Rank)
+                    {
+                        return -1;
+                    }
+
+                    return 0;
+                });
 
                 player.SetHand(hand);
 
@@ -485,19 +508,18 @@ namespace webapi.Hubs
                     TrumpSuit = game.TrumpSuit
                 };
             } else {
+                int index = 0;
+                var playedCards = game.CurrentTrick.GetIds().Select(Utils.GetCardFromId).Select(card => new TrickCard(card.Id, card.Suit, card.Rank, index++)).ToList();
+                var hand = player.GetHand();
 
-                //var ledCard = gameCards.Where(c => c.Id == game.CurrentTrick.LedCardId).Single();
-                //var playedCards = gameCards.Where(c => game.CurrentTrick.GetIds().Contains(c.Id)).ToList();
-                //var hand = gameCards.Where(c => c.GameName == game.Name && c.PlayerName == playerConnectionData.PlayerName).ToList();
+                var validPlays = Utils.GetValidPlays(playedCards, hand, game.TrumpSuit);
 
-                //var validPlays = Utils.GetValidPlays(ledCard, playedCards, hand, game.TrumpSuit);
+                var canPlayCard = validPlays.Any(c => c.Suit == suit && c.Rank == rank);
 
-                //var canPlayCard = validPlays.Any(c => c.Suit == suit && c.Rank == rank);
-
-                //if (!canPlayCard)
-                //{
-                //    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
-                //}
+                if (!canPlayCard)
+                {
+                    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
+                }
             }
 
             game.CurrentTrick.SetCard(game.PlayerTurnIndex, card.Id);
@@ -512,9 +534,16 @@ namespace webapi.Hubs
                 var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
 
                 game.AddCardIds(teamIndex, cardIds);
-                game.CurrentTrick = new Trick();
 
-                game.PlayerTurnIndex = winningPlayerIndex;
+                if (player.GetHand().Count == 0)
+                {
+                    game.Phase = Phase.RoundEnd;
+                }
+                else
+                {
+                    game.CurrentTrick = new Trick();
+                    game.PlayerTurnIndex = winningPlayerIndex;
+                }
             }
             else
             {

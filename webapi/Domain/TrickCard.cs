@@ -7,13 +7,13 @@ namespace webapi.Domain
         public Suit Suit { get; set; }
         public Rank Rank { get; set; }
         public int Id { get; set; }
-        public int Order { get; set; }
+        public int PlayedIndex { get; set; }
 
-        public TrickCard(Suit suit, Rank rank, int id, int order) {
+        public TrickCard(int id, Suit suit, Rank rank, int playedIndex) {
+            Id = id;
             Suit = suit;
             Rank = rank;
-            Id = id;
-            Order = order;
+            PlayedIndex = playedIndex;
         }
     }
 }

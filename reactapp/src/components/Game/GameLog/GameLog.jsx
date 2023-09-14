@@ -2,7 +2,7 @@ import '../../../App.css'
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const suits = ["♣︎", "♦︎", "♥︎", "♠︎"]
+const suits = ["♠︎", "♥︎", "♣︎", "♦︎"]
 
 export default function ScoreLog() {
     const teamOneName = useSelector(state => state.playerState.teamOneName)
@@ -42,7 +42,7 @@ export default function ScoreLog() {
                     {roundBidResults.map(result =>
                         <div key={result} className='score-bid-row-div'>
                             {result.teamIndex == 0 ? <span className='me-2'>{result.bid}</span> : null}
-                            <div className={"trump-bid-result-div " + ((result.trumpSuit == 0 || result.trumpSuit == 3) ? 'card-black' : 'card-red')}>
+                            <div className={"trump-bid-result-div " + ((result.trumpSuit == 0 || result.trumpSuit == 2) ? 'card-black' : 'card-red')}>
                                 {`${suits[result.trumpSuit]}`}
                             </div>
                             {result.teamIndex == 1 ? <span className='ms-2'>{result.bid}</span> : null}

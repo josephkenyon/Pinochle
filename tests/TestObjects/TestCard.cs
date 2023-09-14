@@ -2,7 +2,7 @@
 
 namespace webapi.Domain
 {
-    public class TestCard : ICard
+    public class TestCard
     {
         public Suit Suit { get; set; }
         public Rank Rank { get; set; }

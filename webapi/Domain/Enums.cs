@@ -4,10 +4,10 @@
     {
         public enum Suit
         {
-            Club,
-            Diamond,
+            Spade,
             Heart,
-            Spade
+            Club,
+            Diamond
         }
 
         public enum Rank
