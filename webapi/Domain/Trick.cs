@@ -7,92 +7,60 @@ namespace webapi.Domain
         public string GameName { get; set; }
         public Suit TrumpSuit { get; set; }
         public Suit LedSuit { get; set; }
-        public int? LedCardId { get; set; }
-        public int? SecondCardId { get; set; }
-        public int? ThirdCardId { get; set; }
-        public int? FourthCardId { get; set; }
-        public int? CardIdZero { get; set; }
-        public int? CardIdOne { get; set; }
-        public int? CardIdTwo { get; set; }
-        public int? CardIdThree { get; set; }
+        public string CardsString { get; set; }
 
         public Trick()
         {
+            CardsString = "";
             GameName = "Unknown";
         }
 
-        public void SetCard(int index, int cardId)
+        public void PlayCard(Card card, int playerId)
         {
-            if (index == 0)
-            {
-                CardIdZero = cardId;
-            }
-            else if (index == 1)
-            {
-                CardIdOne = cardId;
-            }
-            else if (index == 2)
-            {
-                CardIdTwo = cardId;
-            }
-            else
-            {
-                CardIdThree = cardId;
-            }
+            var cardStrings = CardsString.Split(";").ToList();
+            cardStrings.RemoveAll(string.IsNullOrEmpty);
 
-            if (LedCardId == null)
-            {
-                LedCardId = cardId;
-            }
-            else if (SecondCardId == null)
-            {
-                SecondCardId = cardId;
-            }
-            else if (ThirdCardId == null)
-            {
-                ThirdCardId = cardId;
-            }
-            else if (FourthCardId == null)
-            {
-                FourthCardId = cardId;
-            }
+            cardStrings.Add($"{playerId}:{card.Id}:{card.Suit}:{card.Rank}");
+
+            CardsString = string.Join(";", cardStrings);
         }
 
-        public int? GetCardId(int index)
+        public List<Card> GetCards()
         {
-            if (index == 0)
+            var cardsList = new List<Card>();
+
+            var cardStrings = CardsString.Split(";").ToList();
+            cardStrings.RemoveAll(string.IsNullOrEmpty);
+
+            cardsList.AddRange(cardStrings.Select(cardString =>
             {
-                return CardIdZero;
-            }
-            else if (index == 1)
-            {
-                return CardIdOne;
-            }
-            else if (index == 2)
-            {
-                return CardIdTwo;
-            }
-            else
-            {
-                return CardIdThree;
-            }
+                var cardStringList = cardString.Split(":");
+                _ = Enum.TryParse(cardStringList[2], out Suit suit);
+                _ = Enum.TryParse(cardStringList[3], out Rank rank);
+
+                return new Card(int.Parse(cardStringList[1]), suit, rank);
+            }));
+
+            return cardsList;
         }
 
-        public bool IsFull()
+        public List<TrickPlay> GetTrickPlays()
         {
-            return CardIdZero != null && CardIdOne != null && CardIdTwo != null && CardIdThree != null;
-        }
+            var trickPlayList = new List<TrickPlay>();
 
-        public List<int> GetIds()
-        {
-            var list = new List<int>
+            var cardStrings = CardsString.Split(";").ToList();
+            cardStrings.RemoveAll(string.IsNullOrEmpty);
+
+            trickPlayList.AddRange(cardStrings.Select(cardString =>
             {
-                (int)CardIdZero!,
-                (int)CardIdOne!,
-                (int)CardIdTwo!,
-                (int)CardIdThree!
-            };
-            return list;
+                var cardStringList = cardString.Split(":");
+                _ = Enum.TryParse(cardStringList[2], out Suit suit);
+                _ = Enum.TryParse(cardStringList[3], out Rank rank);
+
+                return new TrickPlay(new Card(int.Parse(cardStringList[1]), suit, rank), int.Parse(cardStringList[0]));
+            }));
+
+            return trickPlayList;
         }
     }
 }

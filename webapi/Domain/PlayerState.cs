@@ -9,8 +9,6 @@
         public bool ShowReady { get; set; }
         public int LastBid { get; set; }
         public bool ShowLastBid { get; set; }
-        public bool ShowBiddingBox { get; set; }
-        public bool ShowTrumpSelection { get; set; }
         public bool ShowSwapPlayerIndex { get; set; }
 
         public PlayerState() {

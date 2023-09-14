@@ -16,10 +16,10 @@ export default function TrumpSelectionBox() {
                 onSelect={(eventKey, _) => declareTrumpSuit(+eventKey)}
                 title="Declare Trump">
 
-                <Dropdown.Item as="button" eventKey="0">Clubs</Dropdown.Item>
-                <Dropdown.Item as="button" eventKey="1">Diamonds</Dropdown.Item>
-                <Dropdown.Item as="button" eventKey="2">Hearts</Dropdown.Item>
-                <Dropdown.Item as="button" eventKey="3">Spades</Dropdown.Item>
+                <Dropdown.Item as="button" eventKey="0">Spades</Dropdown.Item>
+                <Dropdown.Item as="button" eventKey="1">Hearts</Dropdown.Item>
+                <Dropdown.Item as="button" eventKey="2">Clubs</Dropdown.Item>
+                <Dropdown.Item as="button" eventKey="3">Diamonds</Dropdown.Item>
             </DropdownButton>
         </div>
     )

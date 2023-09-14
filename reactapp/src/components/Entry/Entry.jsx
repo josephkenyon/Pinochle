@@ -3,7 +3,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setConnection, setErrorMessage, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
 import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
-    setShowLastBid, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
+    setShowCollectButton,
+    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
 
@@ -41,6 +42,8 @@ export default function Entry() {
             dispatch(setShowLastBid(newState.showLastBid))
             dispatch(setShowBiddingBox(newState.showBiddingBox))
             dispatch(setShowTrumpSelection(newState.showTrumpSelection))
+            dispatch(setShowPlayButton(newState.showPlayButton))
+            dispatch(setShowCollectButton(newState.showCollectButton))
             dispatch(setShowSwapPlayerIndex(newState.showSwapPlayerIndex))
             dispatch(setHand(newState.hand))
             dispatch(setDisplayedCards(newState.displayedCards))

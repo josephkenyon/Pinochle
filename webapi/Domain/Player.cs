@@ -36,6 +36,7 @@ namespace webapi.Domain
             }
 
             var cardStrings = HandString.Split(";").ToList();
+            cardStrings.RemoveAll(string.IsNullOrEmpty);
 
             cardsList.AddRange(cardStrings.Select(cardString =>
             {

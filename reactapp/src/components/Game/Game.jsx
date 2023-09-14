@@ -3,6 +3,7 @@ import React from 'react';
 import Player from '../Player/Player';
 import HeroPlayer from '../HeroPlayer/HeroPlayer';
 import ScoreLog from './GameLog/GameLog';
+import Trick from '../HeroPlayer/Trick/Trick';
 
 export default function Game() {
 
@@ -20,7 +21,7 @@ export default function Game() {
                         <Player playerStateName={'leftOpponentState'} />
                     </div>
 
-                    <div className='opponent-spacer'/>
+                    <Trick/>
 
                     <div className='opponent-div'>
                         <Player playerStateName={'rightOpponentState'} />

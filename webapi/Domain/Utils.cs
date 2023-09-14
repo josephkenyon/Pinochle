@@ -26,7 +26,7 @@ namespace webapi.Domain
 
             if (hasSuit)
             {
-                var winningCards = hand.Where(card => CompareCards(trumpSuit, ledSuit, card.ToTrickCard(), winningCard) > 0).ToList();
+                var winningCards = hand.Where(card => card.Suit == ledSuit && CompareCards(trumpSuit, ledSuit, card.ToTrickCard(), winningCard) > 0).ToList();
 
                 if (winningCards.Any())
                 {
@@ -108,6 +108,66 @@ namespace webapi.Domain
             }
 
             return 0;
+        }
+
+
+        public static TrickState GetTrickState(Trick trick, int playerIndex)
+        {
+            var trickState = new TrickState();
+
+            if (trick == null)
+            {
+                return trickState;
+            }
+
+            var trickPlays = trick.GetTrickPlays();
+
+            foreach (var trickPlay in trickPlays)
+            {
+                if (trickPlay.PlayerIndex == playerIndex)
+                {
+                    trickState.MyCard = trickPlay.Card;
+                }
+                else if (trickPlay.PlayerIndex == DecrementIndex(playerIndex, 1))
+                {
+                    trickState.RightOpponentCard = trickPlay.Card;
+                }
+                else if (trickPlay.PlayerIndex == DecrementIndex(playerIndex, 2))
+                {
+                    trickState.AllyCard = trickPlay.Card;
+                }
+                else if (trickPlay.PlayerIndex == DecrementIndex(playerIndex, 3))
+                {
+                    trickState.LeftOpponentCard = trickPlay.Card;
+                }
+            }
+
+            return trickState;
+        }
+
+        public static int DecrementIndex(int index, int amount = 1)
+        {
+            var newIndex = index;
+            newIndex -= amount;
+            if (newIndex < 0)
+            {
+                newIndex += 4;
+            }
+
+            return newIndex;
+        }
+
+
+        public static int IncrementIndex(int index, int amount = 1)
+        {
+            var newIndex = index;
+            newIndex += amount;
+            if (newIndex > 3)
+            {
+                newIndex -= 4;
+            }
+
+            return newIndex;
         }
 
         public static Card GetCardFromId(int id)

@@ -12,7 +12,6 @@ namespace webapi.Domain
         public int PlayerTurnIndex { get; set; }
         public int StartingPlayerTurnIndex { private get; set; }
         public int CurrentBid { get; set; }
-        public Trick? CurrentTrick { get; set; }
         public List<Player> Players { get; set; }
         public string TeamOneScoresString { get; set; }
         public string TeamTwoScoresString { get; set; }

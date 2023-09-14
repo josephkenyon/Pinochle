@@ -12,9 +12,12 @@ const initialState = {
     showReady: false,
     showLastBid: false,
     showBiddingBox: false,
+    showPlayButton: false,
+    showCollectButton: false,
     showTrumpSelection: false,
     showSwapPlayerIndex: false,
     hasSelectedCard: false,
+    selectedCardId: -1,
     hand: [],
     displayedCards: [],
     trickState: {},
@@ -66,6 +69,12 @@ export const playerStateSlice = createSlice({
     setShowTrumpSelection: (state, action) => {
         state.showTrumpSelection = action.payload
     },
+    setShowPlayButton: (state, action) => {
+        state.showPlayButton = action.payload
+    },
+    setShowCollectButton: (state, action) => {
+        state.showCollectButton = action.payload
+    },
     setShowSwapPlayerIndex: (state, action) => {
         state.showSwapPlayerIndex = action.payload
     },
@@ -76,7 +85,7 @@ export const playerStateSlice = createSlice({
         state.displayedCards = action.payload
     },
     setTrickState: (state, action) => {
-        state.lastrickStatetBid = action.payload
+        state.trickState = action.payload
     },
     setAllyState: (state, action) => {
         state.allyState = action.payload
@@ -90,10 +99,14 @@ export const playerStateSlice = createSlice({
     selectCard: (state, action) => {
         const newHand = state.hand
 
+        state.selectedCardId = -1;
+        state.hasSelectedCard = false;
+
         newHand.forEach(card => {
             if (card.id == action.payload) {
                 card.selected = !card.selected;
                 state.hasSelectedCard = card.selected;
+                state.selectedCardId = card.selected ? card.id : -1
             } else {
                 card.selected = false;
             }
@@ -105,7 +118,7 @@ export const playerStateSlice = createSlice({
 })
 
 export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setCurrentBid, setHasState, setIsReady,
-    setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand, setDisplayedCards,
+    setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand, setDisplayedCards, setShowPlayButton, setShowCollectButton,
     setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
 
 export default playerStateSlice.reducer

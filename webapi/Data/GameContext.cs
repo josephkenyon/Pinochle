@@ -43,5 +43,6 @@ namespace webapi.Data
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayerConnectionData> PlayerConnections { get; set; }
         public DbSet<Player> Players { get; set; }
+        public DbSet<Trick> Tricks { get; set; }
     }
 }

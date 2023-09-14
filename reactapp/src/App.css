@@ -10,6 +10,9 @@
   height: 25px;
 }
 
+.trick-div {
+  margin-bottom: 100px;
+}
 
 .players-div {
   display: flex;
@@ -34,8 +37,13 @@
   flex-direction: row;
 }
 
-.opponent-spacer {
-  width: 5vw;
+.trick-card-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 100px;
+  height: 100px;
+  flex-direction: column;
 }
 
 .opponent-div {
