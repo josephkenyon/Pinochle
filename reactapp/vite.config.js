@@ -30,6 +30,7 @@ export default defineConfig({
         }
     },
     server: {
+        host: true,
         proxy: {
             '/game': {
                 target: 'https://localhost:7177/',
