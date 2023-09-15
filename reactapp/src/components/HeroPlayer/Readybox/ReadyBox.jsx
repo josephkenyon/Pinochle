@@ -11,10 +11,10 @@ export default function ReadyBox() {
     }
 
     return (
-        <div className="horizontal-div">
-            <label> Ready </label>
+        <div className="horizontal-div hero-ready-box mb-4">
+            Ready
             <input
-                className="checkbox mt-2 ms-3"
+                className="checkbox ms-4"
                 type="checkbox"
                 checked={isReady}
                 onChange={() => declareReady()}/>

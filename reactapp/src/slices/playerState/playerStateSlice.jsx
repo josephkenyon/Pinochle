@@ -6,6 +6,7 @@ const initialState = {
     teamOneScoreLog: [],
     teamTwoScoreLog: [],
     roundBidResults: [],
+    teamIndex: 0,
     lastBid: -1,
     hasState: false,
     isReady: false,
@@ -44,6 +45,9 @@ export const playerStateSlice = createSlice({
     },
     setRoundBidResults: (state, action) => {
         state.roundBidResults = action.payload
+    },
+    setTeamIndex: (state, action) => {
+        state.teamIndex = action.payload
     },
     setLastBid: (state, action) => {
         state.lastBid = action.payload
@@ -117,7 +121,7 @@ export const playerStateSlice = createSlice({
   },
 })
 
-export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setCurrentBid, setHasState, setIsReady,
+export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setTeamIndex, setCurrentBid, setHasState, setIsReady,
     setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand, setDisplayedCards, setShowPlayButton, setShowCollectButton,
     setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
 

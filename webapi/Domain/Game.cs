@@ -10,7 +10,8 @@ namespace webapi.Domain
         public Phase Phase { get; set; }
         public Suit TrumpSuit { get; set; }
         public int PlayerTurnIndex { get; set; }
-        public int StartingPlayerTurnIndex { private get; set; }
+        public int StartingPlayerTurnIndex { get; set; }
+        public int TookBidTeamIndex { get; set; }
         public int CurrentBid { get; set; }
         public List<Player> Players { get; set; }
         public string TeamOneScoresString { get; set; }
@@ -28,7 +29,6 @@ namespace webapi.Domain
             TeamOneCardsTakenIds = "";
             TeamTwoCardsTakenIds = "";
             RoundBidResults = "";
-            StartingPlayerTurnIndex = -1;
         }
 
         public Game(string gameName, string hostingPlayerName) {
@@ -74,6 +74,34 @@ namespace webapi.Domain
             }
         }
 
+        public int GetLastMeld(int teamIndex)
+        {
+            var scoreArray = (teamIndex == 0 ? TeamOneScoresString : TeamTwoScoresString).Split(";").ToList();
+            scoreArray.RemoveAll(string.IsNullOrEmpty);
+
+            var lastMeld = scoreArray.Last();
+
+            return int.Parse(lastMeld);
+        }
+
+        public void NullifyMeld(int teamIndex)
+        {
+            var scoreArray = (teamIndex == 0 ? TeamOneScoresString : TeamTwoScoresString).Split(";").ToList();
+            scoreArray.RemoveAll(string.IsNullOrEmpty);
+
+            scoreArray.RemoveAt(scoreArray.Count - 1);
+            scoreArray.Add("0");
+
+            if (teamIndex == 0)
+            {
+                TeamOneScoresString = string.Join(";", scoreArray);
+            }
+            else
+            {
+                TeamTwoScoresString = string.Join(";", scoreArray);
+            }
+        }
+
         public List<string> GetScoreLog(string teamName, int teamIndex)
         {
 
@@ -87,28 +115,47 @@ namespace webapi.Domain
             return newList;
         }
 
+        public int GetTotalScore(int teamIndex)
+        {
+            int scoreTotal = 0;
+
+            foreach (var score in teamIndex == 0 ? TeamOneScoresString.Split(";") : TeamTwoScoresString.Split(";"))
+            {
+                var parsedScore = 0;
+                try
+                {
+                    parsedScore = int.Parse(score);
+                }
+                catch (Exception) { }
+
+                scoreTotal += parsedScore;
+            }
+
+            return scoreTotal;
+        }
+
         public void AddRoundBidResult(Suit trumpSuit, int teamIndex, int bid)
         {
-            var resultsArray = RoundBidResults.Split(";").ToList();
-            resultsArray.RemoveAll(string.IsNullOrEmpty);
+            var resultsList = RoundBidResults.Split(";").ToList();
+            resultsList.RemoveAll(string.IsNullOrEmpty);
 
             var result = $"{trumpSuit}:{teamIndex}:{bid}";
 
-            resultsArray.Add(result);
+            resultsList.Add(result);
 
-            RoundBidResults = string.Join(";", resultsArray);
+            RoundBidResults = string.Join(";", resultsList);
         }
 
         public List<RoundBidResult> GetRoundBidResults()
         {
-            var resultsArray = RoundBidResults.Split(";").ToList();
-            resultsArray.RemoveAll(string.IsNullOrEmpty);
+            var resultsList = RoundBidResults.Split(";").ToList();
+            resultsList.RemoveAll(string.IsNullOrEmpty);
 
             var newList = new List<RoundBidResult>();
 
-            foreach ( var result in resultsArray )
+            foreach (var result in resultsList)
             {
-                var resultArray = RoundBidResults.Split(":").ToList();
+                var resultArray = result.Split(":").ToList();
                 _ = Enum.TryParse(resultArray[0], out Suit suit);
 
                 newList.Add(new RoundBidResult(suit, int.Parse(resultArray[1]), int.Parse(resultArray[2])));

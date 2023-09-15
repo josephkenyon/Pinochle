@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setConnection, setErrorMessage, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
 import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
     setShowCollectButton,
-    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
+    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamIndex, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
 
@@ -34,6 +34,7 @@ export default function Entry() {
             dispatch(setTeamOneScoreLog(newState.teamOneScoreList))
             dispatch(setTeamTwoScoreLog(newState.teamTwoScoreList))
             dispatch(setRoundBidResults(newState.roundBidResults))
+            dispatch(setTeamIndex(newState.teamIndex))
             dispatch(setLastBid(newState.lastBid))
             dispatch(setCurrentBid(newState.currentBid))
             dispatch(setIsReady(newState.isReady))
@@ -78,15 +79,15 @@ export default function Entry() {
 
 
     return (
-        <div className="vertical-div">
-            <h1 id="tabelLabel">Pinochle</h1>
-            <input className="input" type="text" value={gameName} placeholder="Enter a game name"
+        <div className="vertical-div entry-div">
+            <h1 className="mb-5" id="tabelLabel">Pinochle</h1>
+            <input className="entry-input" type="text" value={gameName} placeholder="Enter a game name"
                 onChange={event => dispatch(setGameName(event.target.value))}/>
 
-            <input className="input" type="text" value={playerName} placeholder="Enter your player name"
+            <input className="entry-input" type="text" value={playerName} placeholder="Enter your player name"
                 onChange={event => dispatch(setPlayerName(event.target.value))}/>
 
-            <button className="button mb-3" value="test" onClick={() => joinGame()}>
+            <button className="entry-button" value="test" onClick={() => joinGame()}>
                 Join Game
             </button>
         </div>

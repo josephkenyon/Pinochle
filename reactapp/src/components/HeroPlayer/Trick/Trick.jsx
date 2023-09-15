@@ -10,23 +10,27 @@ export default function Trick() {
     const myCard = useSelector((state) => state.playerState.trickState.myCard)
 
     return (
-        <div className="vertical-div trick-div">
-            <div className="trick-card-div">
-                {allyCard ? <Card suitIndex={allyCard.suit} rankIndex={allyCard.rank}/> : null}
-            </div>
-
-            <div className="horizontal-div">
+        <div className="vertical-div hundred-percent-div">
+            <div className="top-trick-card-div">
                 <div className="trick-card-div">
-                    {leftOpponentCard ? <Card suitIndex={leftOpponentCard.suit} rankIndex={leftOpponentCard.rank}/> : null}
-                </div>
-                <div className="trick-card-div"/>
-                <div className="trick-card-div">
-                    {rightOpponentCard ? <Card suitIndex={rightOpponentCard.suit} rankIndex={rightOpponentCard.rank}/> : null}
+                    {allyCard ? <Card suitIndex={allyCard.suit} rankIndex={allyCard.rank} small={true}/> : null}
                 </div>
             </div>
 
-            <div className="trick-card-div">
-                {myCard ? <Card suitIndex={myCard.suit} rankIndex={myCard.rank}/> : null}
+            <div className="horizontal-div middle-trick-card-div">
+                <div className="trick-card-div">
+                    {leftOpponentCard ? <Card suitIndex={leftOpponentCard.suit} rankIndex={leftOpponentCard.rank} small={true}/> : null}
+                </div>
+                <div className="trick-spacer-div"/>
+                <div className="trick-card-div">
+                    {rightOpponentCard ? <Card suitIndex={rightOpponentCard.suit} rankIndex={rightOpponentCard.rank} small={true}/> : null}
+                </div>
+            </div>
+
+            <div className="bott-trick-card-div">
+                <div className="trick-card-div">
+                    {myCard ? <Card suitIndex={myCard.suit} rankIndex={myCard.rank} small={true}/> : null}
+                </div>
             </div>
         </div>
     )

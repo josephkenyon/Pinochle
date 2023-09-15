@@ -18,11 +18,11 @@ export default function Card({suitIndex, rankIndex, zIndex, small, selected, onC
         <div className={["card", smallClassClause, colorClass, leftMarginClause, topMarginClause].join(" ")} style={{zIndex: zIndex}} onClick={() => onClick ? onClick() : null}>
             <div className="card-tl">
                 <div className={(small ? "card-value-small" : "card-value-large")}>{rank}</div>
-                <div className={(small ? "card-suit-small" : "card-value-large")}>{suit}</div>
+                <div className={(small ? "card-suit-small" : "card-suit-large")}>{suit}</div>
             </div>
             <div className="card-br">
                 <div className={(small ? "card-value-small" : "card-value-large")}>{rank}</div>
-                <div className={(small ? "card-suit-small" : "card-value-large")}>{suit}</div>
+                <div className={(small ? "card-suit-small" : "card-suit-large")}>{suit}</div>
             </div>
         </div>
     )

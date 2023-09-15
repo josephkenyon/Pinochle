@@ -4,18 +4,28 @@ import ReadyBox from './Readybox/ReadyBox';
 import { useSelector } from 'react-redux';
 import DisplayedCards from './DisplayedCards/DisplayedCards';
 
-export default function Player({ playerStateName }) {
+export default function Player({ playerStateName, ally }) {
     const name = useSelector((state) => state.playerState[playerStateName].name)
     const showReady = useSelector((state) => state.playerState[playerStateName].showReady)
     const showLastBid = useSelector((state) => state.playerState[playerStateName].showLastBid)
     const lastBid = useSelector((state) => state.playerState[playerStateName].lastBid)
     const displayedCards = useSelector((state) => state.playerState[playerStateName].displayedCards)
+    const teamIndex = useSelector((state) => state.playerState.teamIndex)
+
+    let thisPlayerTeamIndex = 0;
+    if ((teamIndex == 1 && ally) || (teamIndex == 0 && !ally)) {
+        thisPlayerTeamIndex = 1;
+    }
 
     return (
         <div className="vertical-div">
-            <span>{name || "Waiting for player"}</span>
-            { showReady ? <ReadyBox playerStateName={playerStateName}/> : null }
-            { showLastBid ? <span>{"Last bid: " + (lastBid == -1 ? "Passed" : lastBid)}</span> : null }
+            <div className='horizontal-div'>
+                <div className={"player-name-div " + ((thisPlayerTeamIndex == 0) ? 'blue-team-div' : 'green-team-div')}>
+                    {name || "Waiting for player"}
+                </div>
+                { showReady ? <ReadyBox playerStateName={playerStateName}/> : null }
+                { showLastBid ? <div className="last-bid-div">{"Last bid: " + (lastBid == -1 ? "Passed" : lastBid)}</div> : null }
+            </div>
             { displayedCards ? <DisplayedCards playerStateName={playerStateName}/> : null }
         </div>
     )

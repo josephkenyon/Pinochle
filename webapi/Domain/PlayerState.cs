@@ -3,6 +3,7 @@
     public class PlayerState
     {
         public string Name { get; set; }
+        public int TeamIndex { get; set; }
         public List<Card> Hand { get; set; }
         public List<Card> DisplayedCards { get; set; }
         public bool IsReady { get; set; }

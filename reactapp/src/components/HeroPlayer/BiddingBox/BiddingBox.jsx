@@ -17,18 +17,21 @@ export default function BiddingBox() {
     }
 
     return (
-        <div className="vertical-div">
-            <label> Enter bid: </label>
+        <div className="vertical-div bidding-div">
+            <div className='horizontal-div mb-3 numeric-input-div'>
+                <div className='me-5 enter-bid-div'> Enter bid: </div>
+                <NumericInput min={minimumBid} max={100} value={currentBid} onChange={value => dispatch(setCurrentBid(value))}/>
+            </div>
             
-            <NumericInput min={minimumBid} max={100} value={currentBid} onChange={value => dispatch(setCurrentBid(value))} className="mb-2"/>
+            <div className='horizontal-div'>
+                <button className="button" value="test" onClick={() => bid(-1)}>
+                    Pass
+                </button>
 
-            <button className="button mt-2 mb-1" value="test" onClick={() => bid(currentBid)}>
-                Submit
-            </button>
-
-            <button className="button" value="test" onClick={() => bid(-1)}>
-                Pass
-            </button>
+                <button className="button ms-5" value="test" onClick={() => bid(currentBid)}>
+                    Submit
+                </button>
+            </div>
         </div>
     )
 }

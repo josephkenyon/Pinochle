@@ -11,6 +11,7 @@ export default function TrumpSelectionBox() {
     return (
         <div className="vertical-div">
             <DropdownButton
+                style={{fontSize:"10px"}}
                 className="trump-dropdown"
                 variant="secondary"
                 onSelect={(eventKey, _) => declareTrumpSuit(+eventKey)}

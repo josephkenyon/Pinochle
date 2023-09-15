@@ -21,11 +21,13 @@ export default function ScoreLog() {
         let index = 1;
 
         return <div className='score-log-column-div'>
-                    {`${teamOneName}`}
+                    <div className='team-name-div blue-team-div'>
+                        {`${teamOneName}`}
+                    </div>
                     <hr className="solid"></hr>
                     {teamOneScoreLog.map(score => 
                         <div key={score} className='score-log-item-div'>
-                            {`${index > 1 ? "+" : ""}${score}`}
+                            {`${index > 1 ? ((+score) >= 0 ? "+" : "") : ""}${score}`}
                             { index++ % 2 == 0 ? <hr className="solid"></hr> : null }
                         </div>
                     )}
@@ -40,12 +42,12 @@ export default function ScoreLog() {
     const columnTwo = () => {
         return <div className='score-bid-column-div'>
                     {roundBidResults.map(result =>
-                        <div key={result} className='score-bid-row-div'>
-                            {result.teamIndex == 0 ? <span className='me-2'>{result.bid}</span> : null}
+                        <div key={result} className={'score-bid-row-div ' + (result.teamIndex == 0 ? "blue-team-div" : "green-team-div")}>
+                            {result.teamIndex == 0 ? <div className='number-bid-result-div'> {result.bid} </div> : null}
                             <div className={"trump-bid-result-div " + ((result.trumpSuit == 0 || result.trumpSuit == 2) ? 'card-black' : 'card-red')}>
                                 {`${suits[result.trumpSuit]}`}
                             </div>
-                            {result.teamIndex == 1 ? <span className='ms-2'>{result.bid}</span> : null}
+                            {result.teamIndex == 1 ? <div className='number-bid-result-div'> {result.bid} </div> : null}
                         </div>
                     )}
                 </div>
@@ -55,11 +57,13 @@ export default function ScoreLog() {
         let index = 1;
 
         return <div className='score-log-column-div'>
-                    {`${teamTwoName}`}
+                    <div className='team-name-div green-team-div'>
+                        {`${teamTwoName}`}
+                    </div>
                     <hr className="solid"></hr>
                     {teamTwoScoreLog.map(score => 
                         <div key={score} className='score-log-item-div'>
-                            {`${index > 1 ? "+" : ""}${score}`}
+                            {`${index > 1 ? ((+score) >= 0 ? "+" : "") : ""}${score}`}
                             { index++ % 2 == 0 ? <hr className="solid"></hr> : null }
                         </div>
                     )}
@@ -72,7 +76,7 @@ export default function ScoreLog() {
     }
 
     return (
-        <div className='horizontal-div'>
+        <div className='game-log-div'>
            {columnOne()}
            {columnTwo()}
            {columnThree()}

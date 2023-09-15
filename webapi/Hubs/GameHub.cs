@@ -130,11 +130,15 @@ namespace webapi.Hubs
             var isMeld = game.Phase == Phase.Meld;
             var isPlaying = game.Phase == Phase.Playing;
             var isDeclaringTrump = game.Phase == Phase.Declaring_Trump;
+            var isRoundEnd = game.Phase == Phase.RoundEnd;
 
-            var showReady = isInitializing || isMeld;
+            var showReady = isInitializing || isMeld || isRoundEnd;
 
             playerState.ShowReady = showReady;
             playerState.IsReady = player.Ready;
+            playerState.IsReady = player.Ready;
+
+            playerState.TeamIndex = (player.PlayerIndex == 0 || player.PlayerIndex == 2) ? 0 : 1;
 
             playerState.ShowBiddingBox = isBidding && isPlayersTurn;
             playerState.LastBid = game.CurrentBid;
@@ -272,6 +276,7 @@ namespace webapi.Hubs
             {
                 game.Phase = Phase.Declaring_Trump;
                 game.PlayerTurnIndex = unPassedPlayers.Single().PlayerIndex;
+                game.TookBidTeamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
 
                 foreach (var player in _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName))
                 {
@@ -415,6 +420,12 @@ namespace webapi.Hubs
             game.CurrentBid = 14;
             game.TeamOneCardsTakenIds = "";
             game.TeamTwoCardsTakenIds = "";
+
+            foreach (var player in players)
+            {
+                player.Passed = false;
+                player.LastBid = 0;
+            }
         }
 
         private static void DealCards(List<Player> players)
@@ -513,13 +524,32 @@ namespace webapi.Hubs
             game.AddCardIds(teamIndex, trickPlays.Select(play => play.Card.Id).ToList());
 
             var player = _gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.PlayerName);
+
+            _gameContext.Tricks.Remove(currentTrick);
+
             if (player.GetHand().Count == 0)
             {
                 game.Phase = Phase.RoundEnd;
+                ProcessRoundEnd(game);
             }
-            else
+
+            var teamOneScore = game.GetTotalScore(0);
+            var teamTwoScore = game.GetTotalScore(1);
+            if (game.TookBidTeamIndex == 0 && teamOneScore > 100)
             {
-                _gameContext.Tricks.Remove(currentTrick);
+                game.Phase = Phase.Game_Over;
+            }
+            else if (game.TookBidTeamIndex == 1 && teamTwoScore > 100)
+            {
+                game.Phase = Phase.Game_Over;
+            }
+            else if (teamOneScore < 0 && teamTwoScore > 100)
+            {
+                game.Phase = Phase.Game_Over;
+            }
+            else if (teamTwoScore < 0 && teamOneScore > 100)
+            {
+                game.Phase = Phase.Game_Over;
             }
 
             _gameContext.SaveChanges();
@@ -527,7 +557,44 @@ namespace webapi.Hubs
             await UpdateClients(game.Name);
         }
 
-        public async Task PlayCard(int cardId)
+        private static void ProcessRoundEnd(Game game)
+        {
+            var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
+            var teamOnePoints = game.GetCardIds(0).Select(Utils.GetCardFromId).Where(card => (int) card.Rank < 3).Count();
+            var teamTwoPoints = game.GetCardIds(1).Select(Utils.GetCardFromId).Where(card => (int) card.Rank < 3).Count();
+
+            if (teamIndex == 0)
+            {
+                teamOnePoints += 2;
+            }
+            else
+            {
+                teamTwoPoints += 2;
+            }
+
+            if (game.TookBidTeamIndex == 0 && (teamOnePoints + game.GetLastMeld(0)) < game.CurrentBid)
+            {
+                game.NullifyMeld(0);
+                game.AddScore(0, -game.CurrentBid);
+            }
+            else
+            {
+                game.AddScore(0, teamOnePoints);
+            }
+
+            if (game.TookBidTeamIndex == 1 && (teamTwoPoints + game.GetLastMeld(1)) < game.CurrentBid)
+            {
+                game.NullifyMeld(1);
+                game.AddScore(1, -game.CurrentBid);
+            }
+            else
+            {
+                game.AddScore(1, teamTwoPoints);
+            }
+        }
+
+        public async Task PlayCard(int sentCardId)
         {
             var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
 
@@ -545,15 +612,20 @@ namespace webapi.Hubs
                 return;
             }
 
-            if (cardId == -1)
+            var player = _gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.PlayerName);
+            var hand = player.GetHand();
+
+            var cardId = sentCardId;
+            if (hand.Count != 1 && cardId == -1)
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "You must select a card.");
                 return;
             }
+            else if (hand.Count == 1)
+            {
+                cardId = hand.Single().Id;
+            }
 
-            var player = _gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.PlayerName);
-
-            var hand = player.GetHand();
             var card = hand.Where(card => card.Id == cardId).FirstOrDefault();
             if (card == null)
             {

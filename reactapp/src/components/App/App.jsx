@@ -13,10 +13,10 @@ export default function App() {
     const displayLoading = loading || (connection && !hasState)
 
     return (
-        <div className="vertical-div">
+        <div className="vertical-div full-screen-div">
             {
                 displayLoading
-                    ? <p><em>Loading...</em></p>
+                    ? <p style={{fontSize: 50}}>Loading...</p>
                     : connection
                         ? <Game/>
                         : <Entry/>
@@ -24,7 +24,7 @@ export default function App() {
 
             {
                 errorMessage
-                    ? <div className="alert alert-danger" role="error">{errorMessage}</div>
+                    ? <div className="alert alert-div alert-danger" role="error">{errorMessage}</div>
                     : null
             }
         </div>
