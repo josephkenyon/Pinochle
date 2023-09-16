@@ -31,12 +31,6 @@ export default defineConfig({
     },
     server: {
         host: true,
-        proxy: {
-            '/game': {
-                target: 'https://localhost:7177/',
-                secure: false
-            }
-        },
         port: 5173,
         https: {
             key: fs.readFileSync(keyFilePath),

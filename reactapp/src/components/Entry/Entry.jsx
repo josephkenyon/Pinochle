@@ -16,7 +16,7 @@ export default function Entry() {
 
     const joinGame = async () => {
         const connection = new HubConnectionBuilder()
-            .withUrl("https://localhost:7177/game")
+            .withUrl("https://73.216.200.18:7177/game")
             .configureLogging(LogLevel.Information)
             .build();
 
@@ -75,14 +75,14 @@ export default function Entry() {
         } catch (e) {
             this.errorMessage("An error occurred trying to join the game.")
         }
-    } 
+    }
 
 
     return (
         <div className="vertical-div entry-div">
             <h1 className="mb-5" id="tabelLabel">Pinochle</h1>
             <input className="entry-input" type="text" value={gameName} placeholder="Enter a game name"
-                onChange={event => dispatch(setGameName(event.target.value))}/>
+                onChange={event => dispatch(setGameName(event.target.value.toUpperCase()))}/>
 
             <input className="entry-input" type="text" value={playerName} placeholder="Enter your player name"
                 onChange={event => dispatch(setPlayerName(event.target.value))}/>
