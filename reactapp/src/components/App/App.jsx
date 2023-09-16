@@ -3,29 +3,35 @@ import React from 'react';
 import Game from '../Game/Game';
 import Entry from '../Entry/Entry';
 import { useSelector } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
     const loading = useSelector((state) => state.appState.loading)
     const connection = useSelector((state) => state.appState.connection)
-    const errorMessage = useSelector((state) => state.appState.errorMessage)
     const hasState = useSelector((state) => state.playerState.hasState)
 
     const displayLoading = loading || (connection && !hasState)
 
     return (
         <div className="vertical-div full-screen-div">
-            {
-                displayLoading
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable={false}
+                pauseOnHover={false}
+                theme="colored"
+            />
+            { displayLoading
                     ? <p style={{fontSize: 50}}>Loading...</p>
                     : connection
                         ? <Game/>
                         : <Entry/>
-            }
-
-            {
-                errorMessage
-                    ? <div className="alert alert-div alert-danger" role="error">{errorMessage}</div>
-                    : null
             }
         </div>
     )

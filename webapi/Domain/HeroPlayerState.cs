@@ -7,6 +7,10 @@
         public bool ShowCollectButton { get; set; }
         public bool ShowBiddingBox { get; set; }
         public bool ShowTrumpSelection { get; set; }
+        public bool ShowTrumpIndicator { get; set; }
+        public bool ShowTricksTaken { get; set; }
+        public int TeamOneTricksTaken { get; set; }
+        public int TeamTwoTricksTaken { get; set; }
         public List<string> TeamOneScoreList { get; set; }
         public List<string> TeamTwoScoreList { get; set; }
         public List<RoundBidResult> RoundBidResults { get; set; }

@@ -28,7 +28,7 @@ export default function Game() {
                         {"<<"} Hide Score Sheet
                     </button>
                 </div>
-                    
+                                    
                 <ScoreLog/>
             </ReactSlidingPane>
             <div className='game-div'>

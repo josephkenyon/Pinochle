@@ -185,7 +185,8 @@ namespace webapi.Domain
 
             var newList = new List<int>();
 
-            var ids = teamIndex == 0 ? TeamOneCardsTakenIds.Split(";") : TeamTwoCardsTakenIds.Split(";");
+            var ids = (teamIndex == 0 ? TeamOneCardsTakenIds.Split(";") : TeamTwoCardsTakenIds.Split(";")).ToList();
+            ids.RemoveAll(string.IsNullOrEmpty);
             newList.AddRange(ids.Select(id => int.Parse(id)));
 
             return newList;

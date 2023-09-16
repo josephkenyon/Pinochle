@@ -30,5 +30,12 @@
             RoundEnd,
             Game_Over
         }
+
+        public enum MessageCode
+        {
+            TeamOne,
+            TeamTwo,
+            Error
+        }
     }
 }

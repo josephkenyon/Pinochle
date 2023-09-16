@@ -9,13 +9,15 @@ export default function Hand() {
     const dispatch = useDispatch()
 
     const hand = useSelector((state) => state.playerState.hand)
+    const displayedCards = useSelector((state) => state.playerState.displayedCards)
 
     const onSelectCard = async (id) => {
-        console.log(hand.length)
-        if (hand.length == 1) {
-            await ConnectionService.getConnection().invoke("PlayCard", -1)
-        } else {
-            dispatch(selectCard(id))
+        if (displayedCards.length == 0) {
+            if (hand.length == 1) {
+                await ConnectionService.getConnection().invoke("PlayCard", -1)
+            } else {
+                dispatch(selectCard(id))
+            }
         }
     }
 
@@ -24,7 +26,7 @@ export default function Hand() {
         <div className="horizontal-div hero-hand-div">
             {hand.map(card => {
                 return <Card key={index} suitIndex={card.suit} rankIndex={card.rank} zIndex={index++}
-                    small={false} selected={hand.length > 1 && card.selected} onClick={() => onSelectCard(card.id)}/>
+                    small={false} selected={displayedCards.map(card => card.id).includes(card.id) || (hand.length > 1 && card.selected)} onClick={() => onSelectCard(card.id)}/>
             })}
         </div>
     )

@@ -11,7 +11,7 @@ export default function ReadyBox() {
     }
 
     return (
-        <div className="horizontal-div hero-ready-box mb-4">
+        <div className="horizontal-div hero-ready-box mb-2">
             Ready
             <input
                 className="checkbox ms-4"

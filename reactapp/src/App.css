@@ -4,9 +4,6 @@
   padding: 2rem;
 }
 
-.trick-div {
-}
-
 .player-name-div {
   font-size: 2em;
   padding-left: 0.5em;
@@ -384,6 +381,26 @@
   background-color: #ffffff44;
 }
 
+.trump-indicator-value-div {
+  font-size: 1.3em;
+}
+
+.trump-indicator-suit-div {
+  font-size: 1.5em;
+}
+
+.trump-indicator-div {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: row;
+  padding-left: 1em;
+  border-radius: 0.6em;
+  padding-right: 1em;
+  background-color: #ffffff44;
+  margin-top: 0.4em;
+}
+
 .trump-bid-result-div {
   font-size: 3em;
 }
@@ -405,12 +422,25 @@
   width: 100%;
 }
 
+.message-div {
+  font-size: 1.8em;
+  width: 12em;
+}
+
 .blue-team-div {
-  background-color: #2255ff66;
+  background: #2255ff66 !important;
+}
+
+.highlight-player {
+  border: 0.15em solid #84c3ff;
 }
 
 .green-team-div {
-  background-color: #22ff5533;
+  background: #22ff5533 !important;
+}
+
+.error-div {
+  background: #662222FF !important;
 }
 
 .hero-ready-box {
@@ -435,13 +465,6 @@
 .player-checkbox {
   width: 2em;
   height: 2em;
-}
-
-.alert-danger {
-  color: #ffffff;
-  background-color: #662222FF;
-  min-width: 20vw;
-  z-index: 100;
 }
 
 .trump-dropdown {

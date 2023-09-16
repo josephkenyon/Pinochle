@@ -7,7 +7,9 @@ const initialState = {
     teamTwoScoreLog: [],
     roundBidResults: [],
     teamIndex: 0,
-    lastBid: -1,
+    lastBid: 0,
+    currentBid: 0,
+    highlightPlayer: false,
     hasState: false,
     isReady: false,
     showReady: false,
@@ -16,6 +18,10 @@ const initialState = {
     showPlayButton: false,
     showCollectButton: false,
     showTrumpSelection: false,
+    showTrumpIndicator: false,
+    showTricksTaken: false,
+    teamOneTricksTaken: 0,
+    teamTwoTricksTaken: 0,
     showSwapPlayerIndex: false,
     hasSelectedCard: false,
     selectedCardId: -1,
@@ -55,6 +61,9 @@ export const playerStateSlice = createSlice({
     setCurrentBid: (state, action) => {
         state.currentBid = action.payload
     },
+    setHighlightPlayer: (state, action) => {
+        state.highlightPlayer = action.payload
+    },
     setHasState: (state, action) => {
         state.hasState = action.payload
     },
@@ -72,6 +81,18 @@ export const playerStateSlice = createSlice({
     },
     setShowTrumpSelection: (state, action) => {
         state.showTrumpSelection = action.payload
+    },
+    setShowTrumpIndicator: (state, action) => {
+        state.showTrumpIndicator = action.payload
+    },
+    setShowTricksTaken: (state, action) => {
+        state.showTricksTaken = action.payload
+    },
+    setTeamOneTricksTaken: (state, action) => {
+        state.teamOneTricksTaken = action.payload
+    },
+    setTeamTwoTricksTaken: (state, action) => {
+        state.teamTwoTricksTaken = action.payload
     },
     setShowPlayButton: (state, action) => {
         state.showPlayButton = action.payload
@@ -121,8 +142,8 @@ export const playerStateSlice = createSlice({
   },
 })
 
-export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setTeamIndex, setCurrentBid, setHasState, setIsReady,
-    setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowSwapPlayerIndex, setHand, setDisplayedCards, setShowPlayButton, setShowCollectButton,
-    setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
+export const { setTeamOneName, setTeamTwoName, setTeamOneScoreLog, setTeamTwoScoreLog, setRoundBidResults, setLastBid, setTeamIndex, setCurrentBid, setHighlightPlayer, setHasState, setIsReady,
+    setShowReady, setShowLastBid, setShowBiddingBox, setShowTrumpSelection, setShowTrumpIndicator, setShowTricksTaken, setTeamOneTricksTaken, setTeamTwoTricksTaken, setShowSwapPlayerIndex,
+    setHand, setDisplayedCards, setShowPlayButton, setShowCollectButton, setTrickState, setAllyState, setLeftOpponentState, setRightOpponentState, selectCard } = playerStateSlice.actions
 
 export default playerStateSlice.reducer

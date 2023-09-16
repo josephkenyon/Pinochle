@@ -4,7 +4,6 @@ const initialState = {
     connection: null,
     gameName: '',
     playerName: '',
-    errorMessage: '',
     loading: false,
     showLog: false
 }
@@ -22,9 +21,6 @@ export const appStateSlice = createSlice({
     setPlayerName: (state, action) => {
         state.playerName = action.payload
     },
-    setErrorMessage: (state, action) => {
-        state.errorMessage = action.payload
-    },
     setLoading: (state, action) => {
         state.loading = action.payload
     },
@@ -34,6 +30,6 @@ export const appStateSlice = createSlice({
   },
 })
 
-export const { setConnection, setGameName, setPlayerName, setErrorMessage, setLoading, setShowLog } = appStateSlice.actions
+export const { setConnection, setGameName, setPlayerName, setLoading, setShowLog } = appStateSlice.actions
 
 export default appStateSlice.reducer

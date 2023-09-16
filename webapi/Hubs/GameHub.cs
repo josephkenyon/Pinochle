@@ -5,6 +5,9 @@ using static webapi.Domain.Enums;
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.ObjectPool;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace webapi.Hubs
 {
@@ -23,7 +26,7 @@ namespace webapi.Hubs
             var clientAlreadyExists = _gameContext.PlayerConnections.Any(client => client.GameName == playerData.GameName && client.PlayerName == playerData.PlayerName);
             if (clientAlreadyExists)
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Someone is already playing in that game under than name.");
+                await MessageClient(playerData.GameName, playerData.PlayerName, "Someone is already playing in that game under than name.", MessageCode.Error, Context.ConnectionId);
                 Context.Abort();
                 return;
             }
@@ -58,7 +61,7 @@ namespace webapi.Hubs
                 }
                 else
                 {
-                    await Clients.Caller.SendAsync("ErrorMessage", "You cannot add a new player to a game already in progress.");
+                    await MessageClient(playerData.GameName, playerData.PlayerName, "You cannot add a new player to a game already in progress.", MessageCode.Error, Context.ConnectionId);
                     Context.Abort();
                     return;
                 }
@@ -87,6 +90,42 @@ namespace webapi.Hubs
                 {
                     _logger.LogError(default, ex, "Error occurred while updating clients.");
                 }
+            }
+        }
+
+        private async Task MessageClients(string gameName, string messageContent, MessageCode messageCode)
+        {
+            foreach (var connection in _gameContext.PlayerConnections.Where(playerConnection => playerConnection.GameName == gameName && playerConnection.Id != null))
+            {
+                try
+                {
+                    var playerState = GetPlayerState(connection);
+                    await Clients.Client(connection.Id!).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(default, ex, "Error occurred while messaging the clients.");
+                }
+            }
+        }
+
+        private async Task MessageClient(string gameName, string playerName, string messageContent, MessageCode messageCode, string? connectionId = null)
+        {
+            try
+            {
+                if (connectionId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+                    return;
+                }
+
+                var connection = _gameContext.PlayerConnections.Single(playerConnection => playerConnection.GameName == gameName && playerConnection.PlayerName == playerName && playerConnection.Id != null);
+                
+                await Clients.Client(connection.Id!).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(default, ex, "Error occurred while messaging a client.");
             }
         }
 
@@ -131,18 +170,26 @@ namespace webapi.Hubs
             var isPlaying = game.Phase == Phase.Playing;
             var isDeclaringTrump = game.Phase == Phase.Declaring_Trump;
             var isRoundEnd = game.Phase == Phase.RoundEnd;
+            var showLastBid = isBidding || isDeclaringTrump;
+            var highLightPlayer = showLastBid || isPlaying;
 
             var showReady = isInitializing || isMeld || isRoundEnd;
 
+            playerState.ShowTrumpIndicator = isMeld || isPlaying;
+            playerState.ShowTricksTaken = isPlaying;
+
+            playerState.TeamOneTricksTaken = game.GetCardIds(0).Count / 4;
+            playerState.TeamTwoTricksTaken = game.GetCardIds(1).Count / 4;
+
             playerState.ShowReady = showReady;
-            playerState.IsReady = player.Ready;
             playerState.IsReady = player.Ready;
 
             playerState.TeamIndex = (player.PlayerIndex == 0 || player.PlayerIndex == 2) ? 0 : 1;
 
             playerState.ShowBiddingBox = isBidding && isPlayersTurn;
-            playerState.LastBid = game.CurrentBid;
-            playerState.CurrentBid = game.CurrentBid + 1;
+            playerState.CurrentBid = game.CurrentBid;
+            playerState.LastBid = player.LastBid;
+            playerState.ShowLastBid = showLastBid && playerState.LastBid != 0;
 
             var currentTrick = _gameContext.Tricks.SingleOrDefault(trick => trick.GameName == game.Name);
             var collectCards = currentTrick != null && currentTrick.GetCards().Count == 4;
@@ -159,8 +206,10 @@ namespace webapi.Hubs
                 playerState.AllyState.ShowReady = showReady;
                 playerState.AllyState.IsReady = ally.Ready;
 
-                playerState.AllyState.ShowLastBid = isBidding && ally.LastBid != 0;
+                playerState.AllyState.ShowLastBid = showLastBid && ally.LastBid != 0;
                 playerState.AllyState.LastBid = ally.LastBid;
+
+                playerState.AllyState.HighlightPlayer = highLightPlayer && game.PlayerTurnIndex == ally.PlayerIndex;
 
                 if (isMeld)
                 {
@@ -175,8 +224,10 @@ namespace webapi.Hubs
                 playerState.LeftOpponentState.ShowReady = showReady;
                 playerState.LeftOpponentState.IsReady = leftOpponent.Ready;
 
-                playerState.LeftOpponentState.ShowLastBid = isBidding && leftOpponent.LastBid != 0;
+                playerState.LeftOpponentState.ShowLastBid = showLastBid && leftOpponent.LastBid != 0;
                 playerState.LeftOpponentState.LastBid = leftOpponent.LastBid;
+
+                playerState.LeftOpponentState.HighlightPlayer = highLightPlayer && game.PlayerTurnIndex == leftOpponent.PlayerIndex;
 
                 if (isMeld)
                 {
@@ -191,13 +242,22 @@ namespace webapi.Hubs
                 playerState.RightOpponentState.ShowReady = showReady;
                 playerState.RightOpponentState.IsReady = rightOpponent.Ready;
 
-                playerState.RightOpponentState.ShowLastBid = isBidding && rightOpponent.LastBid != 0;
+                playerState.RightOpponentState.ShowLastBid = showLastBid && rightOpponent.LastBid != 0;
                 playerState.RightOpponentState.LastBid = rightOpponent.LastBid;
+
+                playerState.RightOpponentState.HighlightPlayer = highLightPlayer && game.PlayerTurnIndex == rightOpponent.PlayerIndex;
 
                 if (isMeld)
                 {
                     playerState.RightOpponentState.DisplayedCards = new MeldResult(rightOpponent.GetHand(), game.TrumpSuit).MeldCards;
                 }
+            }
+
+            playerState.HighlightPlayer = highLightPlayer && game.PlayerTurnIndex == player.PlayerIndex;
+
+            if (isMeld)
+            {
+                playerState.DisplayedCards = new MeldResult(player.GetHand(), game.TrumpSuit).MeldCards;
             }
 
             var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
@@ -255,19 +315,23 @@ namespace webapi.Hubs
             var validBid = bidIsPass || (bid > game.CurrentBid && (game.CurrentBid < 30 || (bid % 5 == 0)));
             if (!validBid)
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "This is not a valid bid.");
+                await MessageClient(game.Name, playerConnectionData.PlayerName, "This is not a valid bid.", MessageCode.Error);
                 return;
             }
 
             var unPassedPlayers = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName && !player.Passed).OrderBy(player => player.PlayerIndex).ToList();
+            var teamIndex = (biddingPlayer.PlayerIndex == 0 || biddingPlayer.PlayerIndex == 2) ? 0 : 1;
             if (bidIsPass)
             {
                 biddingPlayer.Passed = true;
                 unPassedPlayers.Remove(biddingPlayer);
+
+                await MessageClients(game.Name, $"{biddingPlayer.Name} has passed!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
             }
             else
             {
                 game.CurrentBid = bid;
+                await MessageClients(game.Name, $"{biddingPlayer.Name} has bid {bid}!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
             }
 
             biddingPlayer.LastBid = bid;
@@ -276,7 +340,11 @@ namespace webapi.Hubs
             {
                 game.Phase = Phase.Declaring_Trump;
                 game.PlayerTurnIndex = unPassedPlayers.Single().PlayerIndex;
+                
                 game.TookBidTeamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
+                var playerName = unPassedPlayers.Single().Name;
+                await MessageClients(game.Name, $"{playerName} has won the bid and is declaring trump!", game.TookBidTeamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
 
                 foreach (var player in _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName))
                 {
@@ -285,11 +353,22 @@ namespace webapi.Hubs
             }
             else
             {
-                var max = unPassedPlayers.Last().PlayerIndex;
-                var nextPlayerIndex = game.PlayerTurnIndex + 1;
-                if (nextPlayerIndex > max)
+                var index = game.PlayerTurnIndex + 1;
+                var nextPlayerIndex = -1;
+                while (nextPlayerIndex == -1)
                 {
-                    nextPlayerIndex = unPassedPlayers.First().PlayerIndex;
+                    if (unPassedPlayers.Any(player => player.PlayerIndex == index))
+                    {
+                        nextPlayerIndex = index;
+                        break;
+                    }
+
+                    index++;
+                    if (index > 3)
+                    {
+                        index = 0;
+                    }
+
                 }
 
                 game.PlayerTurnIndex = nextPlayerIndex;
@@ -324,6 +403,13 @@ namespace webapi.Hubs
                 return;
             }
 
+            var player = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName && player.Name == playerConnectionData.PlayerName).Single();
+            if (player.PlayerIndex != game.PlayerTurnIndex)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "This player cannot declare trump.");
+                return;
+            }
+
             game.TrumpSuit = (Suit) trumpSuitIndex;
             game.Phase = Phase.Meld;
 
@@ -352,6 +438,11 @@ namespace webapi.Hubs
 
             game.AddRoundBidResult(game.TrumpSuit, teamIndex, game.CurrentBid);
 
+
+            game.TookBidTeamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
+            await MessageClients(game.Name, $"Trump is {game.TrumpSuit}s!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
+
             _gameContext.SaveChanges();
 
             await UpdateClients(game.Name);
@@ -359,6 +450,7 @@ namespace webapi.Hubs
 
         public async Task DeclareReady(bool ready)
         {
+
             var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
 
             var players = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName).ToList();
@@ -397,6 +489,9 @@ namespace webapi.Hubs
                 else if (meld)
                 {
                     game.Phase = Phase.Playing;
+
+                    var leadingPlayer = _gameContext.Players.Single(player => player.GameName == game.Name && player.PlayerIndex == game.PlayerTurnIndex);
+                    await MessageClients(game.Name, $"The hand has started! {leadingPlayer.Name} has the lead.", (leadingPlayer.PlayerIndex == 0 || leadingPlayer.PlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
                 }
                 else
                 {
@@ -411,7 +506,7 @@ namespace webapi.Hubs
             await UpdateClients(game.Name);
         }
 
-        private static void StartNewRound(Game game, List<Player> players)
+        private void StartNewRound(Game game, List<Player> players)
         {
             DealCards(players);
 
@@ -421,11 +516,17 @@ namespace webapi.Hubs
             game.TeamOneCardsTakenIds = "";
             game.TeamTwoCardsTakenIds = "";
 
+            var playerName = players.Single(player => player.PlayerIndex == game.PlayerTurnIndex).Name;
+
+            var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
+
             foreach (var player in players)
             {
                 player.Passed = false;
                 player.LastBid = 0;
             }
+
+            _ = MessageClients(game.Name, $"The round has started! Bidding starts with {playerName}.", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
         }
 
         private static void DealCards(List<Player> players)
@@ -531,25 +632,25 @@ namespace webapi.Hubs
             {
                 game.Phase = Phase.RoundEnd;
                 ProcessRoundEnd(game);
-            }
 
-            var teamOneScore = game.GetTotalScore(0);
-            var teamTwoScore = game.GetTotalScore(1);
-            if (game.TookBidTeamIndex == 0 && teamOneScore > 100)
-            {
-                game.Phase = Phase.Game_Over;
-            }
-            else if (game.TookBidTeamIndex == 1 && teamTwoScore > 100)
-            {
-                game.Phase = Phase.Game_Over;
-            }
-            else if (teamOneScore < 0 && teamTwoScore > 100)
-            {
-                game.Phase = Phase.Game_Over;
-            }
-            else if (teamTwoScore < 0 && teamOneScore > 100)
-            {
-                game.Phase = Phase.Game_Over;
+                var teamOneScore = game.GetTotalScore(0);
+                var teamTwoScore = game.GetTotalScore(1);
+                if (game.TookBidTeamIndex == 0 && teamOneScore > 100)
+                {
+                    game.Phase = Phase.Game_Over;
+                }
+                else if (game.TookBidTeamIndex == 1 && teamTwoScore > 100)
+                {
+                    game.Phase = Phase.Game_Over;
+                }
+                else if (teamOneScore < 0 && teamTwoScore > 100)
+                {
+                    game.Phase = Phase.Game_Over;
+                }
+                else if (teamTwoScore < 0 && teamOneScore > 100)
+                {
+                    game.Phase = Phase.Game_Over;
+                }
             }
 
             _gameContext.SaveChanges();
@@ -557,7 +658,7 @@ namespace webapi.Hubs
             await UpdateClients(game.Name);
         }
 
-        private static void ProcessRoundEnd(Game game)
+        private void ProcessRoundEnd(Game game)
         {
             var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
 
@@ -573,10 +674,20 @@ namespace webapi.Hubs
                 teamTwoPoints += 2;
             }
 
+            var someoneSet = false;
+
+            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
+
+            var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? ""} and {playerNames.ElementAtOrDefault(2) ?? ""}";
+            var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? ""} and {playerNames.ElementAtOrDefault(3) ?? ""}";
+
             if (game.TookBidTeamIndex == 0 && (teamOnePoints + game.GetLastMeld(0)) < game.CurrentBid)
             {
                 game.NullifyMeld(0);
                 game.AddScore(0, -game.CurrentBid);
+
+                _ = MessageClients(game.Name, $"{teamOneName} have been set with only {teamOnePoints} points.", MessageCode.TeamOne);
+                someoneSet = true;
             }
             else
             {
@@ -587,10 +698,19 @@ namespace webapi.Hubs
             {
                 game.NullifyMeld(1);
                 game.AddScore(1, -game.CurrentBid);
+                _ = MessageClients(game.Name, $"{teamTwoName} have been set with only {teamTwoPoints} points.", MessageCode.TeamTwo);
+                someoneSet = true;
             }
             else
             {
                 game.AddScore(1, teamTwoPoints);
+            }
+
+            if (!someoneSet)
+            {
+                var teamName = game.TookBidTeamIndex == 0 ? teamOneName : teamTwoName;
+                var teamPoints = game.TookBidTeamIndex == 0 ? teamOnePoints : teamTwoPoints;
+                _ = MessageClients(game.Name, $"{teamName} has made their bid with {teamPoints} points.", game.TookBidTeamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
             }
         }
 
@@ -618,7 +738,7 @@ namespace webapi.Hubs
             var cardId = sentCardId;
             if (hand.Count != 1 && cardId == -1)
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "You must select a card.");
+                await MessageClient(game.Name, player.Name, "You must select a card.", MessageCode.Error);
                 return;
             }
             else if (hand.Count == 1)
@@ -639,10 +759,9 @@ namespace webapi.Hubs
                 currentTrick = new Trick
                 {
                     LedSuit = card.Suit,
-                    TrumpSuit = game.TrumpSuit
+                    TrumpSuit = game.TrumpSuit,
+                    GameName = game.Name
                 };
-
-                currentTrick.GameName = game.Name;
                 _gameContext.Tricks.Add(currentTrick);
             }
             else if (currentTrick.GetCards().Count == 4) {
@@ -660,13 +779,15 @@ namespace webapi.Hubs
 
                 if (!canPlayCard)
                 {
-                    await Clients.Caller.SendAsync("ErrorMessage", "You can't play that card.");
+                    await MessageClient(game.Name, player.Name, "You can't play that card.", MessageCode.Error);
                     return;
                 }
             }
 
             currentTrick.PlayCard(card, player.PlayerIndex);
             player.RemoveCard(card.Id);
+
+            var cardPronoun = card.Rank == Rank.Ace ? "an" : "a";
 
             var trickPlays = currentTrick.GetTrickPlays();
             if (trickPlays.Count == 4)
@@ -676,12 +797,19 @@ namespace webapi.Hubs
 
                 var winningCardId = Utils.GetWinningCardId(currentTrick.TrumpSuit, playedCards);
 
+                var winningCard = Utils.GetCardFromId(winningCardId);
+
                 var winningPlayerIndex = trickPlays.Single(card => card.Card.Id == winningCardId).PlayerIndex;
 
                 game.PlayerTurnIndex = winningPlayerIndex;
+
+                var winningPlayerName = _gameContext.Players.Single(player => player.GameName == game.Name && player.PlayerIndex == winningPlayerIndex).Name;
+                await MessageClients(game.Name, $"{winningPlayerName} has won the trick with {cardPronoun} {winningCard.Rank} of {winningCard.Suit}s!", (winningPlayerIndex == 0 || winningPlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
             }
             else
             {
+                await MessageClients(game.Name, $"{player.Name} played {cardPronoun} {card.Rank} of {card.Suit}s!", (player.PlayerIndex == 0 || player.PlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
+
                 game.PlayerTurnIndex++;
                 if (game.PlayerTurnIndex > 3)
                 {

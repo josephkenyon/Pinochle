@@ -1,12 +1,13 @@
 import '../../App.css'
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setConnection, setErrorMessage, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
-import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
+import { setConnection, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
+import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setHighlightPlayer, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
     setShowCollectButton,
-    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTrumpSelection, setTeamIndex, setTeamOneName, setTeamOneScoreLog, setTeamTwoName, setTeamTwoScoreLog, setTrickState } from '../../slices/playerState/playerStateSlice';
+    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTricksTaken, setShowTrumpIndicator, setShowTrumpSelection, setTeamIndex, setTeamOneName, setTeamOneScoreLog, setTeamOneTricksTaken, setTeamTwoName, setTeamTwoScoreLog, setTeamTwoTricksTaken, setTrickState } from '../../slices/playerState/playerStateSlice';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
+import { toast } from 'react-toastify';
 
 export default function Entry() {
     const dispatch = useDispatch()
@@ -21,14 +22,18 @@ export default function Entry() {
             .build();
 
         connection.on("ErrorMessage", (message) => {
-            dispatch(setErrorMessage(message))
+            console.error(message)
+        })
+
+        connection.on("SendMessage", (messageObject) => {
+            const { content, code } = messageObject
+            sendMessage(content, code)
         })
 
         connection.on("UpdatePlayerState", (newState) => {
             console.debug("recieving player state update...")
             console.debug(newState)
 
-            dispatch(setErrorMessage(''))
             dispatch(setTeamOneName(newState.teamOneScoreList.shift()))
             dispatch(setTeamTwoName(newState.teamTwoScoreList.shift()))
             dispatch(setTeamOneScoreLog(newState.teamOneScoreList))
@@ -37,12 +42,17 @@ export default function Entry() {
             dispatch(setTeamIndex(newState.teamIndex))
             dispatch(setLastBid(newState.lastBid))
             dispatch(setCurrentBid(newState.currentBid))
+            dispatch(setHighlightPlayer(newState.highlightPlayer))
             dispatch(setIsReady(newState.isReady))
             dispatch(setHasState(true))
             dispatch(setShowReady(newState.showReady))
             dispatch(setShowLastBid(newState.showLastBid))
             dispatch(setShowBiddingBox(newState.showBiddingBox))
             dispatch(setShowTrumpSelection(newState.showTrumpSelection))
+            dispatch(setShowTrumpIndicator(newState.showTrumpIndicator))
+            dispatch(setShowTricksTaken(newState.showTricksTaken))
+            dispatch(setTeamOneTricksTaken(newState.teamOneTricksTaken))
+            dispatch(setTeamTwoTricksTaken(newState.teamTwoTricksTaken))
             dispatch(setShowPlayButton(newState.showPlayButton))
             dispatch(setShowCollectButton(newState.showCollectButton))
             dispatch(setShowSwapPlayerIndex(newState.showSwapPlayerIndex))
@@ -77,6 +87,30 @@ export default function Entry() {
         }
     }
 
+    function sendMessage(message, code) {
+        const className = code == 0 ? 'blue-team-div' : code == 1 ? 'green-team-div' : 'error-div'
+
+        const props = {
+            position: "top-center",
+            autoClose: 3000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: false,
+            className: className + ' message-div',
+            icon: '',
+            progress: undefined,
+            theme: "colored"
+        }
+
+        if (code == 0) {
+            toast.info(message, props);
+        } else if (code == 1) {
+            toast.success(message, props);
+        } else if (code == 2) {
+            toast.error(message, props);
+        }
+    }
 
     return (
         <div className="vertical-div entry-div">
