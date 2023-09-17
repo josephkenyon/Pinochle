@@ -4,7 +4,7 @@ import ConnectionService from '../../../services/connectionService';
 
 export default function CollectTrickButton() {
     const collectTrick = async () => {
-        await ConnectionService.getConnection().invoke("CollectTrick")
+        await ConnectionService.getConnection().invoke("CollectTrick", true)
     }
 
     return (

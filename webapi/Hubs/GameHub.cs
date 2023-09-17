@@ -2,12 +2,6 @@
 using webapi.Data;
 using webapi.Domain;
 using static webapi.Domain.Enums;
-using System.Collections.Concurrent;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.ObjectPool;
-using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace webapi.Hubs
 {
@@ -596,7 +590,7 @@ namespace webapi.Hubs
             }
         }
 
-        public async Task CollectTrick()
+        public async Task CollectTrick(bool updateClients = true)
         {
             var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
 
@@ -655,7 +649,10 @@ namespace webapi.Hubs
 
             _gameContext.SaveChanges();
 
-            await UpdateClients(game.Name);
+            if (updateClients)
+            {
+                await UpdateClients(game.Name);
+            }
         }
 
         private void ProcessRoundEnd(Game game)
@@ -733,6 +730,12 @@ namespace webapi.Hubs
             }
 
             var player = _gameContext.Players.Single(player => player.GameName == game.Name && player.Name == playerConnectionData.PlayerName);
+            if (game.PlayerTurnIndex != player.PlayerIndex)
+            {
+                await MessageClient(game.Name, player.Name, "Its not your turn.", MessageCode.Error);
+                return;
+            }
+
             var hand = player.GetHand();
 
             var cardId = sentCardId;
@@ -754,6 +757,12 @@ namespace webapi.Hubs
             }
 
             var currentTrick = _gameContext.Tricks.SingleOrDefault(trick => trick.GameName == game.Name);
+            if (currentTrick != null && currentTrick.GetCards().Count == 4)
+            {
+                await CollectTrick(false);
+            }
+
+            currentTrick = _gameContext.Tricks.SingleOrDefault(trick => trick.GameName == game.Name);
             if (currentTrick == null)
             {
                 currentTrick = new Trick
@@ -763,10 +772,6 @@ namespace webapi.Hubs
                     GameName = game.Name
                 };
                 _gameContext.Tricks.Add(currentTrick);
-            }
-            else if (currentTrick.GetCards().Count == 4) {
-                await Clients.Caller.SendAsync("ErrorMessage", "You cannot play a card right now.");
-                return;
             }
             else
             {
@@ -788,6 +793,7 @@ namespace webapi.Hubs
             player.RemoveCard(card.Id);
 
             var cardPronoun = card.Rank == Rank.Ace ? "an" : "a";
+            await MessageClients(game.Name, $"{player.Name} played {cardPronoun} {card.Rank} of {card.Suit}s!", (player.PlayerIndex == 0 || player.PlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
 
             var trickPlays = currentTrick.GetTrickPlays();
             if (trickPlays.Count == 4)
@@ -799,17 +805,17 @@ namespace webapi.Hubs
 
                 var winningCard = Utils.GetCardFromId(winningCardId);
 
+                var winningCardPronoun = winningCard.Rank == Rank.Ace ? "an" : "a";
+
                 var winningPlayerIndex = trickPlays.Single(card => card.Card.Id == winningCardId).PlayerIndex;
 
                 game.PlayerTurnIndex = winningPlayerIndex;
 
                 var winningPlayerName = _gameContext.Players.Single(player => player.GameName == game.Name && player.PlayerIndex == winningPlayerIndex).Name;
-                await MessageClients(game.Name, $"{winningPlayerName} has won the trick with {cardPronoun} {winningCard.Rank} of {winningCard.Suit}s!", (winningPlayerIndex == 0 || winningPlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
+                await MessageClients(game.Name, $"{winningPlayerName} has won the trick with {winningCardPronoun} {winningCard.Rank} of {winningCard.Suit}s!", (winningPlayerIndex == 0 || winningPlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
             }
             else
             {
-                await MessageClients(game.Name, $"{player.Name} played {cardPronoun} {card.Rank} of {card.Suit}s!", (player.PlayerIndex == 0 || player.PlayerIndex == 2) ? MessageCode.TeamOne : MessageCode.TeamTwo);
-
                 game.PlayerTurnIndex++;
                 if (game.PlayerTurnIndex > 3)
                 {

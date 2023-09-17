@@ -12,14 +12,11 @@ export default function TrumpIndicator() {
     console.log('test')
 
     return  <div className={'trump-indicator-div ' + (lastRoundBidResult.teamIndex == 0 ? "blue-team-div" : "green-team-div")}>
+                <div className='trump-indicator-value-div'> Winning bid: {lastRoundBidResult.bid} </div>
 
-                {lastRoundBidResult.teamIndex == 0 ? <div className='trump-indicator-value-div'> Winning bid: {lastRoundBidResult.bid} </div> : null}
-
-                <div className={"trump-indicator-suit-div " + ((lastRoundBidResult.trumpSuit == 0 || lastRoundBidResult.trumpSuit == 2) ? 'card-black' : 'card-red')}>
+                <div className={"trump-indicator-suit-div ms-1 " + ((lastRoundBidResult.trumpSuit == 0 || lastRoundBidResult.trumpSuit == 2) ? 'card-black' : 'card-red')}>
                     {`${suits[lastRoundBidResult.trumpSuit]}`}
                 </div>
-
-                {lastRoundBidResult.teamIndex == 1 ? <div className='trump-indicator-value-div'> Winning bid: {lastRoundBidResult.bid} </div> : null}
 
             </div>
 }

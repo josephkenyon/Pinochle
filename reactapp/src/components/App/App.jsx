@@ -16,7 +16,7 @@ export default function App() {
     return (
         <div className="vertical-div full-screen-div">
             <ToastContainer
-                position="top-center"
+                position="top-left"
                 autoClose={5000}
                 hideProgressBar
                 newestOnTop={false}

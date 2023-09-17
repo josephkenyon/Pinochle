@@ -91,7 +91,7 @@ export default function Entry() {
         const className = code == 0 ? 'blue-team-div' : code == 1 ? 'green-team-div' : 'error-div'
 
         const props = {
-            position: "top-center",
+            position: "top-left",
             autoClose: 3000,
             hideProgressBar: true,
             closeOnClick: true,
