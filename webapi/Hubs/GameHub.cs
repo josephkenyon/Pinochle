@@ -166,8 +166,9 @@ namespace webapi.Hubs
             var isRoundEnd = game.Phase == Phase.RoundEnd;
             var showLastBid = isBidding || isDeclaringTrump;
             var highLightPlayer = showLastBid || isPlaying;
-
             var showReady = isInitializing || isMeld || isRoundEnd;
+
+            playerState.ShowSwapPosition = isInitializing;
 
             playerState.ShowTrumpIndicator = isMeld || isPlaying;
             playerState.ShowTricksTaken = isPlaying;
@@ -254,7 +255,7 @@ namespace webapi.Hubs
                 playerState.DisplayedCards = new MeldResult(player.GetHand(), game.TrumpSuit).MeldCards;
             }
 
-            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
+            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).OrderBy(player => player.PlayerIndex).Select(player => player.Name).ToList();
 
             var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? ""}/{playerNames.ElementAtOrDefault(2) ?? ""}";
             var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? ""}/{playerNames.ElementAtOrDefault(3) ?? ""}";
@@ -442,6 +443,50 @@ namespace webapi.Hubs
             await UpdateClients(game.Name);
         }
 
+        public async Task SwapPlayerPosition(string playerName)
+        {
+
+            var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
+
+            var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).SingleOrDefault();
+            if (game == null)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "A game with that name does not exist.");
+                return;
+            }
+
+            var initializing = game.Phase == Phase.Initializing;
+            if (!initializing)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Game is not initializing.");
+                return;
+            }
+
+            var players = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName).ToList();
+            var player = players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerConnectionData.PlayerName).Single();
+            if (player == null)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Player does not exist.");
+                return;
+            }
+
+            var swapPlayer = players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerName).SingleOrDefault();
+            if (swapPlayer == null)
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Swap player does not exist.");
+                return;
+            }
+
+            var index = player.PlayerIndex;
+
+            player.PlayerIndex = swapPlayer.PlayerIndex;
+            swapPlayer.PlayerIndex = index;
+
+            _gameContext.SaveChanges();
+
+            await UpdateClients(game.Name);
+        }
+
         public async Task DeclareReady(bool ready)
         {
 
@@ -459,7 +504,7 @@ namespace webapi.Hubs
             var player = players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerConnectionData.PlayerName).Single();
             if (player == null)
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Game is not currently in a declaring trump phase.");
+                await Clients.Caller.SendAsync("ErrorMessage", "Player does not exist.");
                 return;
             }
 
@@ -673,7 +718,7 @@ namespace webapi.Hubs
 
             var someoneSet = false;
 
-            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).Select(player => player.Name).ToList();
+            var playerNames = _gameContext.Players.Where(player => player.GameName == game.Name).OrderBy(player => player.PlayerIndex).Select(player => player.Name).ToList();
 
             var teamOneName = $"{playerNames.ElementAtOrDefault(0) ?? ""} and {playerNames.ElementAtOrDefault(2) ?? ""}";
             var teamTwoName = $"{playerNames.ElementAtOrDefault(1) ?? ""} and {playerNames.ElementAtOrDefault(3) ?? ""}";

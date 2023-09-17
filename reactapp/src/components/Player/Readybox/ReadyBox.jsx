@@ -7,7 +7,7 @@ export default function ReadyBox({ playerStateName }) {
 
     return (
 <       input
-            className="player-checkbox ms-5 mt-2"
+            className="player-checkbox ms-3"
             type="checkbox"
             readOnly={true}
             checked={isReady || false}/>

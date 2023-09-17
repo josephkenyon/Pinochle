@@ -14,7 +14,7 @@ export default function ReadyBox() {
         <div className="horizontal-div hero-ready-box mb-2">
             Ready
             <input
-                className="checkbox ms-4"
+                className="checkbox ms-3"
                 type="checkbox"
                 checked={isReady}
                 onChange={() => declareReady()}/>

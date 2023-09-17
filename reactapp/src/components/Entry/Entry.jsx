@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setConnection, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
 import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setHighlightPlayer, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
     setShowCollectButton,
-    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPlayerIndex, setShowTricksTaken, setShowTrumpIndicator, setShowTrumpSelection, setTeamIndex, setTeamOneName, setTeamOneScoreLog, setTeamOneTricksTaken, setTeamTwoName, setTeamTwoScoreLog, setTeamTwoTricksTaken, setTrickState } from '../../slices/playerState/playerStateSlice';
+    setShowLastBid, setShowPlayButton, setShowReady, setShowSwapPosition, setShowTricksTaken, setShowTrumpIndicator, setShowTrumpSelection, setTeamIndex, setTeamOneName, setTeamOneScoreLog, setTeamOneTricksTaken, setTeamTwoName, setTeamTwoScoreLog, setTeamTwoTricksTaken, setTrickState } from '../../slices/playerState/playerStateSlice';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
 import { toast } from 'react-toastify';
@@ -46,6 +46,7 @@ export default function Entry() {
             dispatch(setIsReady(newState.isReady))
             dispatch(setHasState(true))
             dispatch(setShowReady(newState.showReady))
+            dispatch(setShowSwapPosition(newState.showSwapPosition))
             dispatch(setShowLastBid(newState.showLastBid))
             dispatch(setShowBiddingBox(newState.showBiddingBox))
             dispatch(setShowTrumpSelection(newState.showTrumpSelection))
@@ -55,7 +56,6 @@ export default function Entry() {
             dispatch(setTeamTwoTricksTaken(newState.teamTwoTricksTaken))
             dispatch(setShowPlayButton(newState.showPlayButton))
             dispatch(setShowCollectButton(newState.showCollectButton))
-            dispatch(setShowSwapPlayerIndex(newState.showSwapPlayerIndex))
             dispatch(setHand(newState.hand))
             dispatch(setDisplayedCards(newState.displayedCards))
             dispatch(setTrickState(newState.trickState))
@@ -121,7 +121,7 @@ export default function Entry() {
             <input className="entry-input" type="text" value={playerName} placeholder="Enter your player name"
                 onChange={event => dispatch(setPlayerName(event.target.value))}/>
 
-            <button className="entry-button" value="test" onClick={() => joinGame()}>
+            <button className="entry-button" onClick={() => joinGame()}>
                 Join Game
             </button>
         </div>
