@@ -110,7 +110,6 @@ namespace webapi.Domain
             return 0;
         }
 
-
         public static TrickState GetTrickState(Trick trick, int playerIndex)
         {
             var trickState = new TrickState();
@@ -156,7 +155,6 @@ namespace webapi.Domain
 
             return newIndex;
         }
-
 
         public static int IncrementIndex(int index, int amount = 1)
         {

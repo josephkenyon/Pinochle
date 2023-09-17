@@ -328,7 +328,7 @@
 }
 
 .slide-pane__content {
-  padding: 1em !important;
+  padding: 0.4em !important;
 }
 
 .score-header-div {
@@ -337,17 +337,16 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  height: 3.5em;
 }
 
 .show-log-button-div {
   font-size: 1em;
-  padding-left: 1em;
-  height: 1em;
+  padding-left: 0.4em;
 }
 
 .game-score-div {
-  font-size: 1em;
-  padding-top: 0.75em;
+  font-size: 0.8em;
   height: 100%;
   border-radius: 10px;
 }
@@ -398,7 +397,6 @@
   border-radius: 0.6em;
   padding-right: 1em;
   background-color: #ffffff44;
-  margin-top: 0.4em;
 }
 
 .trump-bid-result-div {

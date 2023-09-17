@@ -7,19 +7,16 @@ export default function TricksTaken() {
     const teamTwoTricksTaken = useSelector(state => state.playerState.teamTwoTricksTaken)
 
     return (
-        <div className="game-score-div horizontal-div">
-            <div className='team-name-div blue-team-div vertical-div'>
+        <div className="horizontal-div">
+            <div className='team-name-div vertical-div'>
                 {`Tricks won:`}
             </div>
 
-            <div className='score-sum-div me-5'>
+            <div className='score-sum-div game-score-div blue-team-div me-2'>
                 {`${teamOneTricksTaken}`}
             </div>
 
-            <div className='ms-5 team-name-div green-team-div'>
-                {`Tricks won:`}
-            </div>
-            <div className='score-sum-div me-4'>
+            <div className='score-sum-div game-score-div green-team-div'>
                 {`${teamTwoTricksTaken}`}
             </div>
         </div>
