@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using webapi.Domain;
+using webapi.Domain.Game;
+using webapi.Domain.Player;
+using webapi.Domain.PlayerConnection;
+using webapi.Domain.Trick;
 
 namespace webapi.Data
 {
@@ -20,28 +23,18 @@ namespace webapi.Data
             modelBuilder.Entity<Game>()
                 .HasKey(game => game.Name);
 
-            modelBuilder.Entity<Game>()
-                .HasMany(game => game.Players)
-                .WithOne(player => player.Game)
-                .HasForeignKey(player => player.GameName);
-
-            modelBuilder.Entity<PlayerConnectionData>()
+            modelBuilder.Entity<PlayerConnection>()
                 .HasKey(playerConnection => new { playerConnection.GameName, playerConnection.PlayerName });
 
             modelBuilder.Entity<Player>()
                 .HasKey(player => new { player.GameName, player.Name });
-
-            modelBuilder.Entity<Player>()
-                .HasOne(player => player.Game)
-                .WithMany(game => game.Players)
-                .HasForeignKey(player => player.GameName);
 
             modelBuilder.Entity<Trick>()
                 .HasKey(trick => trick.GameName);
         }
 
         public DbSet<Game> Games { get; set; }
-        public DbSet<PlayerConnectionData> PlayerConnections { get; set; }
+        public DbSet<PlayerConnection> PlayerConnections { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Trick> Tricks { get; set; }
     }

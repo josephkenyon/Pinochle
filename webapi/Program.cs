@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using webapi.Data;
 using webapi.Hubs;
+using webapi.Repository.Game;
+using webapi.Repository.Player;
+using webapi.Repository.PlayerConnection;
+using webapi.Repository.Trick;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<GameContext>(options => options.UseInMemoryDatabase("PinochleGames"));
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<IPlayerConnectionRepository, PlayerConnectionRepository>();
+builder.Services.AddScoped<ITrickRepository, TrickRepository>();
 builder.Services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 builder.Services.AddSignalR(options =>
 {

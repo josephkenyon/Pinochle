@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Game
 {
-    public class Game
+    public class Game : IGame
     {
         public string Name { get; set; }
         public Phase Phase { get; set; }
@@ -13,17 +11,16 @@ namespace webapi.Domain
         public int StartingPlayerTurnIndex { get; set; }
         public int TookBidTeamIndex { get; set; }
         public int CurrentBid { get; set; }
-        public List<Player> Players { get; set; }
         public string TeamOneScoresString { get; set; }
         public string TeamTwoScoresString { get; set; }
         public string RoundBidResults { get; set; }
         public string TeamOneCardsTakenIds { get; set; }
         public string TeamTwoCardsTakenIds { get; set; }
 
-        public Game() {
+        public Game()
+        {
             Name = "Unknown";
             Phase = Phase.Initializing;
-            Players = new List<Player>();
             TeamOneScoresString = "";
             TeamTwoScoresString = "";
             TeamOneCardsTakenIds = "";
@@ -31,19 +28,44 @@ namespace webapi.Domain
             RoundBidResults = "";
         }
 
-        public Game(string gameName, string hostingPlayerName) {
+        public Game(string gameName)
+        {
             Name = gameName;
             Phase = Phase.Initializing;
-            Players = new List<Player>
-            {
-                new Player(hostingPlayerName, gameName)
-            };
             TeamOneScoresString = "";
             TeamTwoScoresString = "";
             TeamOneCardsTakenIds = "";
             TeamTwoCardsTakenIds = "";
             RoundBidResults = "";
             StartingPlayerTurnIndex = -1;
+        }
+
+        public Phase GetPhase()
+        {
+            return Phase;
+        }
+
+        public void IncrementPhase()
+        {
+            var phaseInt = (int) Phase;
+
+            Phase = (Phase) Enum.ToObject(typeof(Phase), phaseInt + 1);
+        }
+
+        public void StartNewRound()
+        {
+            Phase = Phase.Bidding;
+
+            StartingPlayerTurnIndex++;
+            if (StartingPlayerTurnIndex > 3)
+            {
+                StartingPlayerTurnIndex = 0;
+            }
+
+            PlayerTurnIndex = StartingPlayerTurnIndex;
+            CurrentBid = 14;
+            TeamOneCardsTakenIds = "";
+            TeamTwoCardsTakenIds = "";
         }
 
         public int IncrementAndGetStartingPlayerTurnIndex()

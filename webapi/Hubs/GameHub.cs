@@ -1,6 +1,12 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using webapi.Data;
 using webapi.Domain;
+using webapi.Domain.Game;
+using webapi.Domain.Player;
+using webapi.Domain.PlayerConnection;
+using webapi.Repository.Game;
+using webapi.Repository.Player;
+using webapi.Repository.PlayerConnection;
+using webapi.Repository.Trick;
 using static webapi.Domain.Enums;
 
 namespace webapi.Hubs
@@ -8,17 +14,30 @@ namespace webapi.Hubs
     public class GameHub : Hub
     {
         private readonly ILogger<GameHub> _logger;
-        private readonly GameContext _gameContext;
+        private readonly IGameRepository _gameRepository;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly IPlayerConnectionRepository _playerConnectionRepository;
+        private readonly ITrickRepository _trickRepository;
 
-        public GameHub(ILogger<GameHub> logger, GameContext gameContext) {
+        public GameHub(
+            ILogger<GameHub> logger,
+            IGameRepository gameRepository,
+            IPlayerRepository playerRepository,
+            IPlayerConnectionRepository playerConnectionRepository,
+            ITrickRepository trickRepository
+        ) {
+
             _logger = logger;
-            _gameContext = gameContext;
+            _gameRepository = gameRepository;
+            _playerRepository = playerRepository;
+            _playerConnectionRepository = playerConnectionRepository;
+            _trickRepository = trickRepository;
         }
     
-        public async Task JoinGame(PlayerConnectionData playerData)
+        public async Task JoinGame(PlayerConnection playerData)
         {
-            var clientAlreadyExists = _gameContext.PlayerConnections.Any(client => client.GameName == playerData.GameName && client.PlayerName == playerData.PlayerName);
-            if (clientAlreadyExists)
+            var existingClient = _playerConnectionRepository.GetPlayerConnection(playerData.GameName, playerData.PlayerName);
+            if (existingClient != null)
             {
                 await MessageClient(playerData.GameName, playerData.PlayerName, "Someone is already playing in that game under than name.", MessageCode.Error, Context.ConnectionId);
                 Context.Abort();
@@ -27,31 +46,22 @@ namespace webapi.Hubs
 
             var addToGroup = Groups.AddToGroupAsync(Context.ConnectionId, playerData.GameName);
 
-            var game = _gameContext.Games.Where(game => game.Name == playerData.GameName).SingleOrDefault();
+            var game = _gameRepository.GetGame(playerData.GameName);
 
-            var gameIsInitializing = game != null && game.Phase == Phase.Initializing;
+            var gameIsInitializing = game != null && game.GetPhase() == Phase.Initializing;
 
-            var playerExists = _gameContext.Players.Where(player => player.GameName == playerData.GameName && player.Name == playerData.PlayerName).Any();
+            var existingPlayer = _playerRepository.GetPlayer(playerData.GameName, playerData.PlayerName);
 
             if (game == null)
             {
-                game = new Game(playerData.GameName, playerData.PlayerName);
-                gameIsInitializing = true;
-
-                _gameContext.Games.Add(game);
+                _gameRepository.CreateGame(playerData.GameName);
+                _playerRepository.CreatePlayer(playerData.GameName, playerData.PlayerName);
             }
-            else if (!playerExists)
+            else if (existingPlayer == null)
             {
                 if (gameIsInitializing)
                 {
-                    var players = _gameContext.Players.Where(player => player.GameName == playerData.GameName).ToList();
-
-                    var player = new Player(playerData.PlayerName, playerData.GameName)
-                    {
-                        PlayerIndex = players.Count()
-                    };
-
-                    game.Players.Add(player);
+                    _playerRepository.CreatePlayer(playerData.GameName, playerData.PlayerName);
                 }
                 else
                 {
@@ -61,24 +71,21 @@ namespace webapi.Hubs
                 }
             }
 
-
-            _gameContext.PlayerConnections.Add(new PlayerConnectionData(playerData.GameName, playerData.PlayerName, Context.ConnectionId));
-
-            _gameContext.SaveChanges();
+            _playerConnectionRepository.CreatePlayerConnection(playerData.GameName, playerData.PlayerName, Context.ConnectionId);
 
             addToGroup.Wait();
 
-            await UpdateClients(game.Name);
+            await UpdateClients(playerData.GameName);
         }
 
         private async Task UpdateClients(string gameName)
         {
-            foreach (var connection in _gameContext.PlayerConnections.Where(playerConnection => playerConnection.GameName == gameName && playerConnection.Id != null))
+            foreach (var connection in _playerConnectionRepository.GetPlayerConnections(gameName))
             {
                 try
                 {
                     var playerState = GetPlayerState(connection);
-                    await Clients.Client(connection.Id!).SendAsync("UpdatePlayerState", playerState);
+                    await Clients.Client(connection.GetId()).SendAsync("UpdatePlayerState", playerState);
                 }
                 catch (Exception ex)
                 {
@@ -89,12 +96,12 @@ namespace webapi.Hubs
 
         private async Task MessageClients(string gameName, string messageContent, MessageCode messageCode)
         {
-            foreach (var connection in _gameContext.PlayerConnections.Where(playerConnection => playerConnection.GameName == gameName && playerConnection.Id != null))
+            foreach (var connection in _playerConnectionRepository.GetPlayerConnections(gameName))
             {
                 try
                 {
                     var playerState = GetPlayerState(connection);
-                    await Clients.Client(connection.Id!).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+                    await Clients.Client(connection.GetId()).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
                 }
                 catch (Exception ex)
                 {
@@ -113,9 +120,12 @@ namespace webapi.Hubs
                     return;
                 }
 
-                var connection = _gameContext.PlayerConnections.Single(playerConnection => playerConnection.GameName == gameName && playerConnection.PlayerName == playerName && playerConnection.Id != null);
+                var connection = _playerConnectionRepository.GetPlayerConnection(gameName, playerName);
                 
-                await Clients.Client(connection.Id!).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+                if (connection != null)
+                {
+                    await Clients.Client(connection.GetId()).SendAsync("SendMessage", new { content = messageContent, code = messageCode });
+                }
             }
             catch (Exception ex)
             {
@@ -123,10 +133,10 @@ namespace webapi.Hubs
             }
         }
 
-        private PlayerState GetPlayerState(PlayerConnectionData playerConnectionData)
+        private PlayerState GetPlayerState(IPlayerConnection playerConnectionData)
         {
-            var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).Single();
-            var player = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName && player.Name == playerConnectionData.PlayerName).Single();
+            var game = _gameRepository.GetGame(playerConnectionData.GetGameName());
+            var player = _playerRepository.GetPlayer(playerConnectionData.GetGameName(), playerConnectionData.GetPlayerName());
 
             var isPlayersTurn = player.PlayerIndex == game.PlayerTurnIndex;
 

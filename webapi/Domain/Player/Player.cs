@@ -1,19 +1,19 @@
 ﻿using static webapi.Domain.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Player
 {
-    public class Player
+    public class Player : IPlayer
     {
         public string Name { get; set; }
-        public string GameName { get; set;}
+        public string GameName { get; set; }
         public int PlayerIndex { get; set; }
         public bool Passed { get; set; }
         public bool Ready { get; set; }
         public int LastBid { get; set; }
         public string? HandString { get; set; }
-        public Game? Game { get; set; }
 
-        public Player(string name, string gameName) {
+        public Player(string name, string gameName)
+        {
             Name = name;
             GameName = gameName;
         }

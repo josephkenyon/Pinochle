@@ -1,8 +1,8 @@
 ﻿using static webapi.Domain.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Trick
 {
-    public class Trick
+    public class Trick : ITrick
     {
         public string GameName { get; set; }
         public Suit TrumpSuit { get; set; }
