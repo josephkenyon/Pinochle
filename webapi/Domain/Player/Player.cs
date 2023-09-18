@@ -12,18 +12,30 @@ namespace webapi.Domain.Player
         public int LastBid { get; set; }
         public string? HandString { get; set; }
 
-        public Player(string name, string gameName)
+        public Player(string gameName, string name)
         {
-            Name = name;
             GameName = gameName;
+            Name = name;
         }
 
-        public void SetHand(List<Card> cards)
+        public int GetIndex()
         {
-            var cardStringList = new List<string>();
-            cardStringList.AddRange(cards.Select(card => $"{card.Id}:{card.Suit}:{card.Rank}"));
+            return PlayerIndex;
+        }
 
-            HandString = string.Join(";", cardStringList);
+        public int GetLastBid()
+        {
+            return LastBid;
+        }
+
+        public bool GetIsReady()
+        {
+            return Ready;
+        }
+
+        public string GetName()
+        {
+            return Name;
         }
 
         public List<Card> GetHand()
@@ -48,6 +60,14 @@ namespace webapi.Domain.Player
             }));
 
             return cardsList;
+        }
+
+        public void SetHand(List<Card> cards)
+        {
+            var cardStringList = new List<string>();
+            cardStringList.AddRange(cards.Select(card => $"{card.Id}:{card.Suit}:{card.Rank}"));
+
+            HandString = string.Join(";", cardStringList);
         }
 
         public void RemoveCard(int id)

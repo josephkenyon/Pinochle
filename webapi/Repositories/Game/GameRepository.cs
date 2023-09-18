@@ -1,7 +1,7 @@
 ﻿using webapi.Data;
 using webapi.Domain.Game;
 
-namespace webapi.Repository.Game
+namespace webapi.Repositories.Game
 {
     public class GameRepository : IGameRepository
     {

@@ -1,7 +1,8 @@
 ﻿using webapi.Data;
+using webapi.Domain.GameDetails;
 using webapi.Domain.Trick;
 
-namespace webapi.Repository.Trick
+namespace webapi.Repositories.Trick
 {
     public class TrickRepository : ITrickRepository
     {
@@ -14,8 +15,10 @@ namespace webapi.Repository.Trick
             _gameContext = gameContext;
         }
 
-        public ITrick? GetTrick(string gameName)
+        public ITrick? GetTrick(IGameDetails gameDetails)
         {
+            var gameName = gameDetails.GetGameName();
+
             try
             {
                 return _gameContext.Tricks.SingleOrDefault(trick => trick.GameName == gameName);

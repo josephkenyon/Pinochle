@@ -4,7 +4,10 @@ namespace webapi.Domain.Game
 {
     public interface IGame
     {
+        public int GetCurrentBid();
+        public int GetPlayerTurnIndex();
         public Phase GetPhase();
+        public Suit GetTrumpSuit();
         public void IncrementPhase();
         public void StartNewRound();
         public void AddScore(int teamIndex, int scoreIncrementValue);

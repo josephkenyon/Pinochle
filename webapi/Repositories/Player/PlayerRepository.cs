@@ -1,7 +1,9 @@
 ﻿using webapi.Data;
+using webapi.Domain.GameDetails;
 using webapi.Domain.Player;
+using webapi.Domain.PlayerDetails;
 
-namespace webapi.Repository.Player
+namespace webapi.Repositories.Player
 {
     public class PlayerRepository : IPlayerRepository
     {
@@ -14,9 +16,12 @@ namespace webapi.Repository.Player
             _gameContext = gameContext;
         }
 
-        public void CreatePlayer(string gameName, string playerName)
+        public void CreatePlayer(IPlayerDetails playerDetails)
         {
-            var playerCount = GetPlayers(gameName).Count();
+            var gameName = playerDetails.GetGameName();
+            var playerName = playerDetails.GetPlayerName();
+
+            var playerCount = GetPlayers(playerDetails).Count();
             var player = new Domain.Player.Player(gameName, playerName)
             {
                 PlayerIndex = playerCount
@@ -26,8 +31,11 @@ namespace webapi.Repository.Player
             _gameContext.SaveChanges();
         }
 
-        public IPlayer? GetPlayer(string gameName, string playerName)
+        public IPlayer? GetPlayer(IPlayerDetails playerDetails)
         {
+            var gameName = playerDetails.GetGameName();
+            var playerName = playerDetails.GetPlayerName();
+
             try
             {
                 return _gameContext.Players.SingleOrDefault(player => player.GameName == gameName && player.Name == playerName);
@@ -39,8 +47,10 @@ namespace webapi.Repository.Player
             }
         }
 
-        public IEnumerable<IPlayer> GetPlayers(string gameName)
+        public IEnumerable<IPlayer> GetPlayers(IGameDetails gameDetails)
         {
+            var gameName = gameDetails.GetGameName();
+
             return _gameContext.Players.Where(player => player.GameName == gameName);
         }
     }

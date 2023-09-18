@@ -1,6 +1,6 @@
 ﻿using webapi.Domain.Game;
 
-namespace webapi.Repository.Game
+namespace webapi.Repositories.Game
 {
     public interface IGameRepository
     {

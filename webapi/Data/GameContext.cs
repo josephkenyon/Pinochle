@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using webapi.Domain.Game;
 using webapi.Domain.Player;
-using webapi.Domain.PlayerConnection;
+using webapi.Domain.PlayerConnectionDetails;
 using webapi.Domain.Trick;
 
 namespace webapi.Data
@@ -23,7 +23,7 @@ namespace webapi.Data
             modelBuilder.Entity<Game>()
                 .HasKey(game => game.Name);
 
-            modelBuilder.Entity<PlayerConnection>()
+            modelBuilder.Entity<PlayerConnectionDetails>()
                 .HasKey(playerConnection => new { playerConnection.GameName, playerConnection.PlayerName });
 
             modelBuilder.Entity<Player>()
@@ -34,7 +34,7 @@ namespace webapi.Data
         }
 
         public DbSet<Game> Games { get; set; }
-        public DbSet<PlayerConnection> PlayerConnections { get; set; }
+        public DbSet<PlayerConnectionDetails> PlayerConnections { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Trick> Tricks { get; set; }
     }

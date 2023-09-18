@@ -1,7 +1,9 @@
 ﻿using webapi.Data;
-using webapi.Domain.PlayerConnection;
+using webapi.Domain.GameDetails;
+using webapi.Domain.PlayerConnectionDetails;
+using webapi.Domain.PlayerDetails;
 
-namespace webapi.Repository.PlayerConnection
+namespace webapi.Repositories.PlayerConnection
 {
     public class PlayerConnectionRepository : IPlayerConnectionRepository
     {
@@ -14,16 +16,23 @@ namespace webapi.Repository.PlayerConnection
             _gameContext = gameContext;
         }
 
-        public void CreatePlayerConnection(string gameName, string playerName, string connectionId)
+        public void CreatePlayerConnection(IPlayerConnectionDetails playerConnectionDetails)
         {
-            var playerConnection = new Domain.PlayerConnection.PlayerConnection(gameName, playerName, connectionId);
+            var playerConnection = new PlayerConnectionDetails(
+                playerConnectionDetails.GetGameName(),
+                playerConnectionDetails.GetPlayerName(),
+                playerConnectionDetails.GetConnectionId()
+            );
 
             _gameContext.PlayerConnections.Add(playerConnection);
             _gameContext.SaveChanges();
         }
 
-        public IPlayerConnection? GetPlayerConnection(string gameName, string playerName)
+        public IPlayerConnectionDetails? GetPlayerConnection(IPlayerDetails playerDetails)
         {
+            var gameName = playerDetails.GetGameName();
+            var playerName = playerDetails.GetPlayerName();
+
             try
             {
                 return _gameContext.PlayerConnections.SingleOrDefault(playerConnection => playerConnection.GameName == gameName && playerConnection.PlayerName == playerName);
@@ -35,8 +44,10 @@ namespace webapi.Repository.PlayerConnection
             }
         }
 
-        public IEnumerable<IPlayerConnection> GetPlayerConnections(string gameName)
+        public IEnumerable<IPlayerConnectionDetails> GetPlayerConnections(IGameDetails gameDetails)
         {
+            var gameName = gameDetails.GetGameName();
+
             return _gameContext.PlayerConnections.Where(playerConnection => playerConnection.GameName == gameName);
         }
     }

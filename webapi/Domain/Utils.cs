@@ -1,4 +1,5 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.Trick;
+using static webapi.Domain.Enums;
 
 namespace webapi.Domain
 {
@@ -110,7 +111,7 @@ namespace webapi.Domain
             return 0;
         }
 
-        public static TrickState GetTrickState(Trick trick, int playerIndex)
+        public static TrickState GetTrickState(ITrick trick, int playerIndex)
         {
             var trickState = new TrickState();
 

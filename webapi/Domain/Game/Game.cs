@@ -40,9 +40,24 @@ namespace webapi.Domain.Game
             StartingPlayerTurnIndex = -1;
         }
 
+        public int GetPlayerTurnIndex()
+        {
+            return PlayerTurnIndex;
+        }
+
+        public int GetCurrentBid()
+        {
+            return CurrentBid;
+        }
+
         public Phase GetPhase()
         {
             return Phase;
+        }
+
+        public Suit GetTrumpSuit()
+        {
+            return TrumpSuit;
         }
 
         public void IncrementPhase()
