@@ -25,6 +25,9 @@ namespace webapi.Domain
             var kings = cards.Where(card => card.Rank == Rank.King).ToList();
             AddKingsAround(kings);
 
+            var aces = cards.Where(card => card.Rank == Rank.Ace).ToList();
+            AddAcesAround(aces);
+
             var kingsAndQueens = cards.Where(card => card.Rank == Rank.King || card.Rank == Rank.Queen).ToList();
             AddMarriages(trumpSuit, kingsAndQueens, numberOfRuns);
 
@@ -152,6 +155,32 @@ namespace webapi.Domain
                 });
 
                 MeldValue += 8;
+            }
+        }
+
+        private void AddAcesAround(List<Card> aces)
+        {
+            if (aces.Count == 8)
+            {
+                foreach (var ace in aces.Where(ace => !MeldCards.Contains(ace)))
+                {
+                    MeldCards.Add(ace);
+                }
+
+                MeldValue += 100;
+            }
+            else if (aces.Any(ace => ace.Suit == Suit.Club) && aces.Any(ace => ace.Suit == Suit.Diamond)
+                && aces.Any(ace => ace.Suit == Suit.Heart) && aces.Any(ace => ace.Suit == Suit.Spade))
+            {
+                Enum.GetValues<Suit>().ToList().ForEach(suit =>
+                {
+                    if (!MeldCards.Any(card => card.Suit == suit && card.Rank == Rank.Ace))
+                    {
+                        MeldCards.Add(aces.First(ace => ace.Suit == suit));
+                    }
+                });
+
+                MeldValue += 10;
             }
         }
 
