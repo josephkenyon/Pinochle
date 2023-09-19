@@ -1,10 +1,12 @@
 ﻿using webapi.Domain.Bidding;
+using webapi.Domain.GameDetails;
 using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Domain.Game
 {
     public class Game : IGame
     {
+        public IGameDetails GetGameDetails() => new GameDetails.GameDetails(Name);
         public string Name { get; set; }
         public Phase Phase { get; set; }
         public Suit TrumpSuit { get; set; }
@@ -49,6 +51,15 @@ namespace webapi.Domain.Game
         public void SetPlayerTurnIndex(int index)
         {
             PlayerTurnIndex = index;
+        }
+
+        public void IncrementPlayerTurnIndex()
+        {
+            PlayerTurnIndex++;
+            if (PlayerTurnIndex > 3)
+            {
+                PlayerTurnIndex = 0;
+            }
         }
 
         public int GetTookBidTeamIndex()

@@ -29,5 +29,28 @@ namespace webapi.Repositories.Trick
                 return null;
             }
         }
+
+        public void AddTrick(Domain.Tricks.Trick trick)
+        {
+            _gameContext.Tricks.Add(trick);
+            _gameContext.SaveChanges();
+        }
+
+        public void DeleteTrick(IGameDetails gameDetails)
+        {
+            var gameName = gameDetails.GetGameName();
+
+            try
+            {
+                var trick = _gameContext.Tricks.Single(trick => trick.GameName == gameName);
+
+                _gameContext.Tricks.Remove(trick);
+                _gameContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+                _logger.LogError("Error deleting the trick for '{GameName}'", gameName);
+            }
+        }
     }
 }

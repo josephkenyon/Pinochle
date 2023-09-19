@@ -15,6 +15,8 @@ namespace webapi.Domain.Tricks
             GameName = "Unknown";
         }
 
+        public Suit GetTrumpSuit() => TrumpSuit;
+
         public void PlayCard(Card card, int playerId)
         {
             var cardStrings = CardsString.Split(";").ToList();

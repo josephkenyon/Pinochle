@@ -1,4 +1,5 @@
 ﻿using webapi.Domain.Bidding;
+using webapi.Domain.GameDetails;
 using webapi.Domain.PlayerDetails;
 using static webapi.Domain.Statics.Enums;
 
@@ -6,6 +7,7 @@ namespace webapi.Domain.Game
 {
     public interface IGame
     {
+        IGameDetails GetGameDetails();
         int GetCurrentBid();
         int GetPlayerTurnIndex();
         void SetPlayerTurnIndex(int index);
@@ -26,5 +28,6 @@ namespace webapi.Domain.Game
         List<int> GetCardIds(int teamIndex);
         void AddCardIds(int teamIndex, List<int> cardIds);
         void SetCurrentBid(int bid);
+        void IncrementPlayerTurnIndex();
     }
 }

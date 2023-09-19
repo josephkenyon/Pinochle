@@ -27,6 +27,10 @@ namespace webapi.Domain.Player
         public int GetLastBid() => LastBid;
 
         public bool GetIsReady() => Ready;
+        public void SetIsReady(bool ready)
+        {
+            Ready = ready;
+        }
 
         public bool GetPassed() => Passed;
 
@@ -37,7 +41,7 @@ namespace webapi.Domain.Player
         public void Bid(int bid)
         {
             LastBid = bid;
-            Passed = bid == 0;
+            Passed = bid == -1;
         }
 
         public void ResetBiddingState()
@@ -70,7 +74,7 @@ namespace webapi.Domain.Player
             return cardsList;
         }
 
-        public void SetHand(List<Card> cards)
+        public void DealCards(List<Card> cards)
         {
             var cardStringList = new List<string>();
             cardStringList.AddRange(cards.Select(card => $"{card.Id}:{card.Suit}:{card.Rank}"));

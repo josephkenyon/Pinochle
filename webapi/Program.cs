@@ -4,6 +4,7 @@ using webapi.Controllers.GameHub;
 using webapi.Controllers.Player;
 using webapi.Controllers.PlayerConnection;
 using webapi.Controllers.PlayerState;
+using webapi.Controllers.Trick;
 using webapi.Data;
 using webapi.Hubs;
 using webapi.Repositories.Game;
@@ -21,11 +22,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<GameContext>(options => options.UseInMemoryDatabase("PinochleGames"));
 
+builder.Services.AddScoped<IGameHubController, GameHubController>();
 builder.Services.AddScoped<IGameController, GameController>();
 builder.Services.AddScoped<IPlayerController, PlayerController>();
 builder.Services.AddScoped<IPlayerConnectionController, PlayerConnectionController>();
 builder.Services.AddScoped<IPlayerStateController, PlayerStateController>();
-builder.Services.AddScoped<IGameHubController, GameHubController>();
+builder.Services.AddScoped<ITrickController, TrickController>();
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();

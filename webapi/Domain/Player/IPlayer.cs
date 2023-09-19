@@ -4,17 +4,19 @@ namespace webapi.Domain.Player
 {
     public interface IPlayer
     {
-        public IPlayerDetails GetPlayerDetails();
-        public int GetIndex();
-        public int GetTeamIndex();
-        public int GetLastBid();
-        public bool GetPassed();
-        public string GetName();
-        public string GetGameName();
-        public bool GetIsReady();
-        public List<Card> GetHand();
-        public void Bid(int bid);
-        public void ResetBiddingState();
-        public void RemoveCard(int id);
+        IPlayerDetails GetPlayerDetails();
+        int GetIndex();
+        int GetTeamIndex();
+        int GetLastBid();
+        bool GetPassed();
+        string GetName();
+        string GetGameName();
+        bool GetIsReady();
+        void SetIsReady(bool ready);
+        void Bid(int bid);
+        void ResetBiddingState();
+        void RemoveCard(int id);
+        List<Card> GetHand();
+        void DealCards(List<Card> cards);
     }
 }

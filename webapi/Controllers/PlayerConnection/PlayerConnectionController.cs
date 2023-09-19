@@ -60,13 +60,14 @@ namespace webapi.Controllers.PlayerConnection
             }
             else if (existingPlayer == null)
             {
-                if (gameIsInitializing)
+                var gameIsFull = _playerController.GetPlayers(playerConnectionDetails).Count() == 4;
+                if (gameIsInitializing && !gameIsFull)
                 {
                     _playerController.CreatePlayer(playerConnectionDetails);
                 }
                 else
                 {
-                    await MessageError(playerConnectionDetails, "You cannot add a new player to a game already in progress.");
+                    await MessageError(playerConnectionDetails, gameIsFull ? "That game is full." : "You cannot add a new player to a game already in progress.");
                     return false;
                 }
             }
