@@ -1,11 +1,13 @@
-﻿using webapi.Domain;
+﻿using webapi.Domain.Meld;
 using webapi.Domain.PlayerDetails;
+using webapi.Domain.PlayerState;
+using webapi.Domain.Statics;
 using webapi.Repositories.Game;
 using webapi.Repositories.Player;
 using webapi.Repositories.Trick;
-using static webapi.Domain.Enums;
+using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Controllers.PlayerConnection
+namespace webapi.Controllers.PlayerState
 {
     public class PlayerStateController : IPlayerStateController
     {
@@ -57,14 +59,14 @@ namespace webapi.Controllers.PlayerConnection
             {
                 leftOpponentIndex -= 4;
             }
-            var leftOpponent = players.Where(player => playerIndex == leftOpponentIndex).SingleOrDefault();
+            var leftOpponent = players.Where(player => player.GetIndex() == leftOpponentIndex).SingleOrDefault();
 
             var rightOpponentIndex = playerIndex + 3;
             if (rightOpponentIndex > 3)
             {
                 rightOpponentIndex -= 4;
             }
-            var rightOpponent = players.SingleOrDefault(player => playerIndex == rightOpponentIndex);
+            var rightOpponent = players.SingleOrDefault(player => player.GetIndex() == rightOpponentIndex);
 
             var phase = game.GetPhase();
             var trumpSuit = game.GetTrumpSuit();

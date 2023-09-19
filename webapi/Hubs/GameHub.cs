@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using webapi.Controllers.PlayerConnection;
+using webapi.Controllers.GameHub;
 using webapi.Domain.PlayerConnectionDetails;
 using webapi.Domain.PlayerDetails;
 
@@ -7,15 +7,10 @@ namespace webapi.Hubs
 {
     public class GameHub : Hub
     {
-        private readonly ILogger<GameHub> _logger;
-        private readonly IPlayerConnectionController _playerConnectionController;
+        private readonly IGameHubController _gameHubController;
 
-        public GameHub(
-            ILogger<GameHub> logger,
-            IPlayerConnectionController playerConnectionController
-        ) {
-            _logger = logger;
-            _playerConnectionController = playerConnectionController;
+        public GameHub(IGameHubController gameHubController) {
+            _gameHubController = gameHubController;
         }
     
         public async Task JoinGame(PlayerDetails playerDetails)
@@ -26,7 +21,7 @@ namespace webapi.Hubs
                 Context.ConnectionId
             );
 
-            var success = await _playerConnectionController.JoinGame(playerConnectionDetails);
+            var success = await _gameHubController.JoinGame(playerConnectionDetails);
 
             if (!success)
             {
@@ -34,224 +29,20 @@ namespace webapi.Hubs
             }
         }
 
-        public IHubCallerClients GetClients()
+        public async Task Bid(int bid)
         {
-            return Clients;
+            await _gameHubController.OnBid(Context.ConnectionId, bid);
         }
 
-        //public async Task Bid(int bid)
-        //{
-        //    var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
+        public async Task DeclareTrump(int trumpSuitIndex)
+        {
+            await _gameHubController.DeclareTrump(Context.ConnectionId, trumpSuitIndex);
+        }
 
-        //    var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).SingleOrDefault();
-        //    if (game == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "A game with that name does not exist.");
-        //        return;
-        //    }
-
-        //    var gameIsBidding = game.Phase == Phase.Bidding;
-        //    if (!gameIsBidding)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "Game is not currently in a bidding phase.");
-        //        return;
-        //    }
-
-        //    var biddingPlayer = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerConnectionData.PlayerName).Single();
-        //    if (biddingPlayer == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "A player with that name does exist in this game.");
-        //        return;
-        //    }
-
-        //    var playersTurn = biddingPlayer.PlayerIndex == game.PlayerTurnIndex;
-        //    if (!playersTurn)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "It is not that player's turn.");
-        //        return;
-        //    }
-
-        //    var bidIsPass = bid == -1;
-
-        //    var validBid = bidIsPass || (bid > game.CurrentBid && (game.CurrentBid < 30 || (bid % 5 == 0)));
-        //    if (!validBid)
-        //    {
-        //        await MessageClient(game.Name, playerConnectionData.PlayerName, "This is not a valid bid.", MessageCode.Error);
-        //        return;
-        //    }
-
-        //    var unPassedPlayers = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName && !player.Passed).OrderBy(player => player.PlayerIndex).ToList();
-        //    var teamIndex = (biddingPlayer.PlayerIndex == 0 || biddingPlayer.PlayerIndex == 2) ? 0 : 1;
-        //    if (bidIsPass)
-        //    {
-        //        biddingPlayer.Passed = true;
-        //        unPassedPlayers.Remove(biddingPlayer);
-
-        //        await MessageClients(game.Name, $"{biddingPlayer.Name} has passed!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
-        //    }
-        //    else
-        //    {
-        //        game.CurrentBid = bid;
-        //        await MessageClients(game.Name, $"{biddingPlayer.Name} has bid {bid}!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
-        //    }
-
-        //    biddingPlayer.LastBid = bid;
-
-        //    if (unPassedPlayers.Count == 1)
-        //    {
-        //        game.Phase = Phase.Declaring_Trump;
-        //        game.PlayerTurnIndex = unPassedPlayers.Single().PlayerIndex;
-                
-        //        game.TookBidTeamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
-
-        //        var playerName = unPassedPlayers.Single().Name;
-        //        await MessageClients(game.Name, $"{playerName} has won the bid and is declaring trump!", game.TookBidTeamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
-
-        //        foreach (var player in _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName))
-        //        {
-        //            player.LastBid = 0;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var index = game.PlayerTurnIndex + 1;
-        //        var nextPlayerIndex = -1;
-        //        while (nextPlayerIndex == -1)
-        //        {
-        //            if (unPassedPlayers.Any(player => player.PlayerIndex == index))
-        //            {
-        //                nextPlayerIndex = index;
-        //                break;
-        //            }
-
-        //            index++;
-        //            if (index > 3)
-        //            {
-        //                index = 0;
-        //            }
-
-        //        }
-
-        //        game.PlayerTurnIndex = nextPlayerIndex;
-        //    }
-
-        //    _gameContext.SaveChanges();
-
-        //    await UpdateClients(game.Name);
-        //}
-
-        //public async Task DeclareTrump(int trumpSuitIndex)
-        //{
-        //    var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
-
-        //    var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).SingleOrDefault();
-        //    if (game == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "A game with that name does not exist.");
-        //        return;
-        //    }
-
-        //    var gameIsDeclaringTrump = game.Phase == Phase.Declaring_Trump;
-        //    if (!gameIsDeclaringTrump)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "Game is not currently in a declaring trump phase.");
-        //        return;
-        //    }
-
-        //    if (trumpSuitIndex < 0 || trumpSuitIndex > 3)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "That is not a valid suit.");
-        //        return;
-        //    }
-
-        //    var player = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName && player.Name == playerConnectionData.PlayerName).Single();
-        //    if (player.PlayerIndex != game.PlayerTurnIndex)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "This player cannot declare trump.");
-        //        return;
-        //    }
-
-        //    game.TrumpSuit = (Suit) trumpSuitIndex;
-        //    game.Phase = Phase.Meld;
-
-        //    int teamOneScore = 0;
-        //    int teamTwoScore = 0;
-
-        //    var players = _gameContext.Players.Where(player => player.GameName == game.Name).ToList();
-        //    players.ForEach(player =>
-        //    {
-        //        var meldResult = new MeldResult(player.GetHand(), game.TrumpSuit);
-
-        //        if (player.PlayerIndex == 0 || player.PlayerIndex == 2)
-        //        {
-        //            teamOneScore += meldResult.MeldValue;
-        //        }
-        //        else
-        //        {
-        //            teamTwoScore += meldResult.MeldValue;
-        //        }
-        //    });
-
-        //    game.AddScore(0, teamOneScore);
-        //    game.AddScore(1, teamTwoScore);
-
-        //    var teamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
-
-        //    game.AddRoundBidResult(game.TrumpSuit, teamIndex, game.CurrentBid);
-
-
-        //    game.TookBidTeamIndex = (game.PlayerTurnIndex == 0 || game.PlayerTurnIndex == 2) ? 0 : 1;
-
-        //    await MessageClients(game.Name, $"Trump is {game.TrumpSuit}s!", teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo);
-
-        //    _gameContext.SaveChanges();
-
-        //    await UpdateClients(game.Name);
-        //}
-
-        //public async Task SwapPlayerPosition(string playerName)
-        //{
-
-        //    var playerConnectionData = _gameContext.PlayerConnections.Single(connection => connection.Id == Context.ConnectionId);
-
-        //    var game = _gameContext.Games.Where(game => game.Name == playerConnectionData.GameName).SingleOrDefault();
-        //    if (game == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "A game with that name does not exist.");
-        //        return;
-        //    }
-
-        //    var initializing = game.Phase == Phase.Initializing;
-        //    if (!initializing)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "Game is not initializing.");
-        //        return;
-        //    }
-
-        //    var players = _gameContext.Players.Where(player => player.GameName == playerConnectionData.GameName).ToList();
-        //    var player = players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerConnectionData.PlayerName).Single();
-        //    if (player == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "Player does not exist.");
-        //        return;
-        //    }
-
-        //    var swapPlayer = players.Where(player => player.GameName == playerConnectionData.GameName).Where(player => player.Name == playerName).SingleOrDefault();
-        //    if (swapPlayer == null)
-        //    {
-        //        await Clients.Caller.SendAsync("ErrorMessage", "Swap player does not exist.");
-        //        return;
-        //    }
-
-        //    var index = player.PlayerIndex;
-
-        //    player.PlayerIndex = swapPlayer.PlayerIndex;
-        //    swapPlayer.PlayerIndex = index;
-
-        //    _gameContext.SaveChanges();
-
-        //    await UpdateClients(game.Name);
-        //}
+        public async Task SwapPlayerPosition(string playerName)
+        {
+            await _gameHubController.SwapPlayerPosition(Context.ConnectionId, playerName);
+        }
 
         //public async Task DeclareReady(bool ready)
         //{
@@ -639,17 +430,11 @@ namespace webapi.Hubs
         //    await UpdateClients(game.Name);
         //}
 
-        //public override Task OnDisconnectedAsync(Exception? exception)
-        //{
-        //    var connection = _gameContext.PlayerConnections.SingleOrDefault(playerConnection => playerConnection.Id == Context.ConnectionId);
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            _gameHubController.OnClientDisconnected(Context.ConnectionId);
 
-        //    if (connection != null)
-        //    {
-        //        _gameContext.PlayerConnections.Remove(connection);
-        //        _gameContext.SaveChanges();
-        //    }
-
-        //    return base.OnDisconnectedAsync(exception);
-        //}
+            return base.OnDisconnectedAsync(exception);
+        }
     }
 }

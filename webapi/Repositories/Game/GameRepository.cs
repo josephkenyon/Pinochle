@@ -1,5 +1,6 @@
 ﻿using webapi.Data;
 using webapi.Domain.Game;
+using webapi.Domain.GameDetails;
 
 namespace webapi.Repositories.Game
 {
@@ -14,10 +15,8 @@ namespace webapi.Repositories.Game
             _gameContext = gameContext;
         }
 
-        public void CreateGame(string gameName)
+        public void AddGame(Domain.Game.Game game)
         {
-            var game = new Domain.Game.Game(gameName);
-
             _gameContext.Add(game);
             _gameContext.SaveChanges();
         }
@@ -33,6 +32,17 @@ namespace webapi.Repositories.Game
                 _logger.LogError("Error retrieving a game with '{GameName}'", gameName);
                 return null;
             }
+        }
+
+        public void UpdateGame(IGameDetails gameDetails, Domain.Game.Game game)
+        {
+            var gameName = gameDetails.GetGameName();
+            var gamesList = _gameContext.Games.ToList();
+            var index = gamesList.FindIndex(game => game.Name == gameName);
+
+            gamesList[index] = game;
+
+            _gameContext.SaveChanges();
         }
     }
 }

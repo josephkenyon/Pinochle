@@ -6,8 +6,10 @@ namespace webapi.Repositories.PlayerConnection
 {
     public interface IPlayerConnectionRepository
     {
-        public void CreatePlayerConnection(IPlayerConnectionDetails playerConnection);
-        public IPlayerConnectionDetails? GetPlayerConnection(IPlayerDetails playerDetails);
-        public IEnumerable<IPlayerConnectionDetails> GetPlayerConnections(IGameDetails gameDetails);
+        void CreateConnection(IPlayerConnectionDetails playerConnection);
+        void DeleteConnection(string connectionId);
+        IPlayerConnectionDetails? GetPlayerConnection(IPlayerDetails playerDetails);
+        IPlayerDetails? GetPlayerDetails(string connectionId);
+        IEnumerable<IPlayerConnectionDetails> GetPlayerConnections(IGameDetails gameDetails);
     }
 }

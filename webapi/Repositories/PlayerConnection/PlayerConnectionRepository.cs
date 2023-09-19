@@ -16,7 +16,7 @@ namespace webapi.Repositories.PlayerConnection
             _gameContext = gameContext;
         }
 
-        public void CreatePlayerConnection(IPlayerConnectionDetails playerConnectionDetails)
+        public void CreateConnection(IPlayerConnectionDetails playerConnectionDetails)
         {
             var playerConnection = new PlayerConnectionDetails(
                 playerConnectionDetails.GetGameName(),
@@ -25,6 +25,14 @@ namespace webapi.Repositories.PlayerConnection
             );
 
             _gameContext.PlayerConnections.Add(playerConnection);
+            _gameContext.SaveChanges();
+        }
+
+        public void DeleteConnection(string connectionId)
+        {
+            var entity = _gameContext.PlayerConnections.Single(connection => connection.Id == connectionId);
+
+            _gameContext.PlayerConnections.Remove(entity);
             _gameContext.SaveChanges();
         }
 
@@ -40,6 +48,19 @@ namespace webapi.Repositories.PlayerConnection
             catch (Exception)
             {
                 _logger.LogError("Error retrieving a player connection with '{GameName}' && '{PlayerName}'", gameName, playerName);
+                return null;
+            }
+        }
+
+        public IPlayerDetails? GetPlayerDetails(string connectionId)
+        {
+            try
+            {
+                return _gameContext.PlayerConnections.ToList().SingleOrDefault(playerConnection => playerConnection.GetConnectionId() == connectionId);
+            }
+            catch (Exception)
+            {
+                _logger.LogError("Error retrieving a player connection with '{ConnectionId}' connectionId", connectionId);
                 return null;
             }
         }

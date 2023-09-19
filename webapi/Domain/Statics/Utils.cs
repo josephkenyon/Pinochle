@@ -1,7 +1,7 @@
-﻿using webapi.Domain.Trick;
-using static webapi.Domain.Enums;
+﻿using webapi.Domain.Tricks;
+using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Statics
 {
     public static class Utils
     {
@@ -11,7 +11,7 @@ namespace webapi.Domain
 
             var sortedCards = new List<TrickCard>(cards);
 
-            sortedCards.Sort((a,b) => CompareCards(trumpSuit, ledSuit, a, b));
+            sortedCards.Sort((a, b) => CompareCards(trumpSuit, ledSuit, a, b));
 
             return sortedCards.Last().Id;
         }
@@ -91,7 +91,7 @@ namespace webapi.Domain
         public static int GetSuitValue(Suit trumpSuit, Suit ledSuit, Suit suit)
         {
             var trumpWasLed = trumpSuit == ledSuit;
-            
+
             if (trumpWasLed)
             {
                 return suit == trumpSuit ? 1 : 0;
@@ -172,7 +172,7 @@ namespace webapi.Domain
         public static Card GetCardFromId(int id)
         {
             var suit = (Suit)(id / 12);
-            var rank = (Rank)((id - ((int) suit) * 12) / 2);
+            var rank = (Rank)((id - (int)suit * 12) / 2);
 
             return new Card(id, suit, rank);
         }

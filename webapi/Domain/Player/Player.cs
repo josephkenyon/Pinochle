@@ -1,9 +1,11 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.PlayerDetails;
+using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Domain.Player
 {
     public class Player : IPlayer
     {
+        public IPlayerDetails GetPlayerDetails() => new PlayerDetails.PlayerDetails(GameName, Name);
         public string Name { get; set; }
         public string GameName { get; set; }
         public int PlayerIndex { get; set; }
@@ -18,24 +20,30 @@ namespace webapi.Domain.Player
             Name = name;
         }
 
-        public int GetIndex()
+        public int GetIndex() => PlayerIndex;
+
+        public int GetTeamIndex() => (PlayerIndex == 0 || PlayerIndex == 2) ? 0 : 1;
+
+        public int GetLastBid() => LastBid;
+
+        public bool GetIsReady() => Ready;
+
+        public bool GetPassed() => Passed;
+
+        public string GetName() => Name;
+
+        public string GetGameName() => GameName;
+
+        public void Bid(int bid)
         {
-            return PlayerIndex;
+            LastBid = bid;
+            Passed = bid == 0;
         }
 
-        public int GetLastBid()
+        public void ResetBiddingState()
         {
-            return LastBid;
-        }
-
-        public bool GetIsReady()
-        {
-            return Ready;
-        }
-
-        public string GetName()
-        {
-            return Name;
+            LastBid = 0;
+            Passed = false;
         }
 
         public List<Card> GetHand()

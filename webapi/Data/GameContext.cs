@@ -2,7 +2,7 @@
 using webapi.Domain.Game;
 using webapi.Domain.Player;
 using webapi.Domain.PlayerConnectionDetails;
-using webapi.Domain.Trick;
+using webapi.Domain.Tricks;
 
 namespace webapi.Data
 {

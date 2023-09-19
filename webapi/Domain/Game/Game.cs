@@ -1,4 +1,5 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.Bidding;
+using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Domain.Game
 {
@@ -45,6 +46,21 @@ namespace webapi.Domain.Game
             return PlayerTurnIndex;
         }
 
+        public void SetPlayerTurnIndex(int index)
+        {
+            PlayerTurnIndex = index;
+        }
+
+        public int GetTookBidTeamIndex()
+        {
+            return TookBidTeamIndex;
+        }
+
+        public void SetTookBidTeamIndex(int index)
+        {
+            TookBidTeamIndex = index;
+        }
+
         public int GetCurrentBid()
         {
             return CurrentBid;
@@ -60,11 +76,21 @@ namespace webapi.Domain.Game
             return TrumpSuit;
         }
 
+        public void SetTrumpSuit(Suit suit)
+        {
+            TrumpSuit = suit;
+        }
+
         public void IncrementPhase()
         {
             var phaseInt = (int) Phase;
 
             Phase = (Phase) Enum.ToObject(typeof(Phase), phaseInt + 1);
+        }
+
+        public void SetCurrentBid(int bid)
+        {
+            CurrentBid = bid;
         }
 
         public void StartNewRound()

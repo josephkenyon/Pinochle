@@ -53,5 +53,32 @@ namespace webapi.Repositories.Player
 
             return _gameContext.Players.Where(player => player.GameName == gameName);
         }
+
+        public void UpdatePlayer(IPlayerDetails playerDetails, Domain.Player.Player player)
+        {
+            var gameName = playerDetails.GetGameName();
+            var playerName = playerDetails.GetPlayerName();
+            var playersList = _gameContext.Players.Where(game => game.GameName == gameName).ToList();
+            var index = playersList.FindIndex(player => player.Name == playerName);
+
+            playersList[index] = player;
+
+            _gameContext.SaveChanges();
+        }
+
+        public void UpdatePlayers(IGameDetails gameDetails, IEnumerable<Domain.Player.Player> playerList)
+        {
+            var gameName = gameDetails.GetGameName();
+            var playersList = _gameContext.Players.Where(game => game.GameName == gameName).ToList();
+
+            foreach (var player in playerList)
+            {
+                var index = playersList.FindIndex(p => p.Name == player.Name);
+
+                playersList[index] = player;
+            }
+
+            _gameContext.SaveChanges();
+        }
     }
 }

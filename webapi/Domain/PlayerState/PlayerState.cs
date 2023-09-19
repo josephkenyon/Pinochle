@@ -1,4 +1,4 @@
-﻿namespace webapi.Domain
+﻿namespace webapi.Domain.PlayerState
 {
     public class PlayerState
     {
@@ -12,7 +12,8 @@
         public int LastBid { get; set; }
         public bool ShowLastBid { get; set; }
 
-        public PlayerState() {
+        public PlayerState()
+        {
             Name = "";
             Hand = new List<Card>();
             DisplayedCards = new List<Card>();

@@ -9,5 +9,7 @@ namespace webapi.Repositories.Player
         public void CreatePlayer(IPlayerDetails playeDetails);
         public IEnumerable<IPlayer> GetPlayers(IGameDetails gameDetails);
         public IPlayer? GetPlayer(IPlayerDetails playeDetails);
+        public void UpdatePlayer(IPlayerDetails playerDetails, Domain.Player.Player player);
+        public void UpdatePlayers(IGameDetails gameDetails, IEnumerable<Domain.Player.Player> playerList);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using webapi.Domain.GameDetails;
-using webapi.Domain.Trick;
+using webapi.Domain.Tricks;
 
 namespace webapi.Repositories.Trick
 {

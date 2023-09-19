@@ -1,7 +1,7 @@
-﻿using webapi.Domain;
-using webapi.Domain.PlayerDetails;
+﻿using webapi.Domain.PlayerDetails;
+using webapi.Domain.PlayerState;
 
-namespace webapi.Controllers.PlayerConnection
+namespace webapi.Controllers.PlayerState
 {
     public interface IPlayerStateController
     {

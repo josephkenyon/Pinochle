@@ -1,13 +1,14 @@
-﻿using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Meld
 {
     public class MeldResult
     {
         public int MeldValue { get; set; }
         public List<Card> MeldCards { get; set; }
 
-        public MeldResult(List<Card> cards, Suit trumpSuit) {
+        public MeldResult(List<Card> cards, Suit trumpSuit)
+        {
             MeldValue = 0;
             MeldCards = new List<Card>();
 
@@ -264,7 +265,7 @@ namespace webapi.Domain
 
                     if (count > 0)
                     {
-                        MeldValue += ((suit == trumpSuit ? 4 : 2) * count);
+                        MeldValue += (suit == trumpSuit ? 4 : 2) * count;
                     }
                 }
             }

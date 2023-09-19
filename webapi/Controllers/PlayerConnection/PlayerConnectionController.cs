@@ -1,87 +1,103 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
 using Microsoft.AspNetCore.SignalR;
+using webapi.Controllers.Game;
+using webapi.Controllers.Player;
+using webapi.Controllers.PlayerState;
+using webapi.Data;
 using webapi.Domain.GameDetails;
-using webapi.Domain.MessageDetails;
 using webapi.Domain.PlayerConnectionDetails;
 using webapi.Domain.PlayerDetails;
-using webapi.Hubs;
-using webapi.Repositories.Game;
-using webapi.Repositories.Player;
 using webapi.Repositories.PlayerConnection;
-using static webapi.Domain.Enums;
+using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Controllers.PlayerConnection
 {
-    public class PlayerConnectionController : Controller, IPlayerConnectionController
+    public class PlayerConnectionController : IPlayerConnectionController
     {
         private readonly ILogger<PlayerConnectionController> _logger;
         private readonly IPlayerStateController _playerStateController;
         private readonly IPlayerConnectionRepository _playerConnectionRepository;
-        private readonly IGameRepository _gameRepository;
-        private readonly IPlayerRepository _playerRepository;
-        private readonly IHubContext<GameHub> _hubContext;
+        private readonly IGameController _gameController;
+        private readonly IPlayerController _playerController;
+        private readonly IHubContext<Hubs.GameHub> _hubContext;
 
         public PlayerConnectionController(
             ILogger<PlayerConnectionController> logger,
             IPlayerStateController playerStateController,
             IPlayerConnectionRepository playerConnectionRepository,
-            IGameRepository gameRepository,
-            IPlayerRepository playerRepository,
-            IHubContext<GameHub> hubContext
+            IGameController gameController,
+            IPlayerController playerController,
+            IHubContext<Hubs.GameHub> hubContext
         )
         {
             _logger = logger;
             _playerStateController = playerStateController;
             _playerConnectionRepository = playerConnectionRepository;
-            _gameRepository = gameRepository;
-            _playerRepository = playerRepository;
+            _gameController = gameController;
+            _playerController = playerController;
             _hubContext = hubContext;
         }
 
         public async Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails)
         {
-            var gameName = playerConnectionDetails.GetGameName();
-            var playerName = playerConnectionDetails.GetPlayerName();
-            var connectionId = playerConnectionDetails.GetConnectionId();
-
-            MessageDetails getMessageDetails(string content) => new(new GameDetails(gameName), MessageCode.Error, content);
-
             var existingClient = _playerConnectionRepository.GetPlayerConnection(playerConnectionDetails);
             if (existingClient != null)
             {
-                await MessageClient(connectionId, getMessageDetails("Someone is already playing in that game under than name."));
+                await MessageError(playerConnectionDetails, "Someone is already playing in that game under than name.");
                 return false;
             }
 
-            var game = _gameRepository.GetGame(gameName);
+            var game = _gameController.GetGame(playerConnectionDetails);
 
             var gameIsInitializing = game != null && game.GetPhase() == Phase.Initializing;
 
-            var existingPlayer = _playerRepository.GetPlayer(playerConnectionDetails);
+            var existingPlayer = _playerController.GetPlayer(playerConnectionDetails);
 
             if (game == null)
             {
-                _gameRepository.CreateGame(gameName);
-                _playerRepository.CreatePlayer(playerConnectionDetails);
+                _gameController.CreateGame(playerConnectionDetails);
+                _playerController.CreatePlayer(playerConnectionDetails);
             }
             else if (existingPlayer == null)
             {
                 if (gameIsInitializing)
                 {
-                    _playerRepository.CreatePlayer(playerConnectionDetails);
+                    _playerController.CreatePlayer(playerConnectionDetails);
                 }
                 else
                 {
-                    await MessageClient(connectionId, getMessageDetails("You cannot add a new player to a game already in progress."));
+                    await MessageError(playerConnectionDetails, "You cannot add a new player to a game already in progress.");
                     return false;
                 }
             }
 
-            _playerConnectionRepository.CreatePlayerConnection(playerConnectionDetails);
+            _playerConnectionRepository.CreateConnection(playerConnectionDetails);
 
             await UpdateClients(playerConnectionDetails);
 
             return true;
+        }
+
+        public void RemoveConnection(string connectionId)
+        {
+            var playerDetails = GetPlayerDetails(connectionId);
+
+            if (playerDetails != null)
+            {
+                _playerConnectionRepository.DeleteConnection(connectionId);
+            }
+        }
+
+        public IPlayerDetails? GetPlayerDetails(string connectionId)
+        {
+            return _playerConnectionRepository.GetPlayerDetails(connectionId);
+        }
+
+        private IPlayerConnectionDetails GetPlayerConnectionDetails(IPlayerDetails playerDetails)
+        {
+            var playerConnectionDetails = _playerConnectionRepository.GetPlayerConnection(playerDetails);
+
+            return playerConnectionDetails ?? throw new InvalidOperationException($"Player details were null for {playerDetails.GetPlayerName()}");
         }
 
         public async Task UpdateClients(IGameDetails gameDetails)
@@ -100,33 +116,35 @@ namespace webapi.Controllers.PlayerConnection
             }
         }
 
-        public async Task MessageClients(IMessageDetails messageDetails)
+        public async Task MessageClients(IGameDetails gameDetails, string content, int teamIndex)
         {
-            var code = messageDetails.GetCode();
-            var content = messageDetails.GetContent();
+            var code = teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo;
 
-            foreach (var connection in _playerConnectionRepository.GetPlayerConnections(messageDetails))
+            await MessageClients(gameDetails, content, code);   
+        }
+
+        private async Task MessageClients(IGameDetails gameDetails, string content, MessageCode code)
+        {
+            foreach (var connection in _playerConnectionRepository.GetPlayerConnections(gameDetails))
             {
-                try
-                {
-                    var playerState = _playerStateController.GetPlayerState(connection);
-                    await _hubContext.Clients.Client(connection.GetConnectionId()).SendAsync("SendMessage", new { content, code });
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(default, ex, "Error occurred while messaging the clients.");
-                }
+                await MessageClient(connection, code, content);
             }
         }
 
-        public async Task MessageClient(string connectionId, IMessageDetails messageDetails)
+        public async Task MessageClient(IPlayerDetails playerDetails, string content, int teamIndex)
         {
-            var code = messageDetails.GetCode();
-            var content = messageDetails.GetContent();
+            var code = teamIndex == 0 ? MessageCode.TeamOne : MessageCode.TeamTwo;
 
+            var playerConnectionDetails = GetPlayerConnectionDetails(playerDetails);
+
+            await MessageClient(playerConnectionDetails, code, content);
+        }
+
+        private async Task MessageClient(IPlayerConnectionDetails playerConnectionDetails, MessageCode code, string content)
+        {
             try
             {
-                await _hubContext.Clients.Client(connectionId).SendAsync("SendMessage", new { content, code });
+                await _hubContext.Clients.Client(playerConnectionDetails.GetConnectionId()).SendAsync("SendMessage", new { content, code });
             }
             catch (Exception ex)
             {
@@ -134,26 +152,23 @@ namespace webapi.Controllers.PlayerConnection
             }
         }
 
-        public async Task MessageClient(IMessageDetails messageDetails, string playerName)
+        public async Task MessageError(IPlayerDetails playerDetails, string errorMessage)
         {
-            var code = messageDetails.GetCode();
-            var content = messageDetails.GetContent();
+            var playerConnectionDetails = GetPlayerConnectionDetails(playerDetails);
 
-            var playerDetails = new PlayerDetails(messageDetails.GetGameName(), playerName);
+            await MessageClient(playerConnectionDetails, MessageCode.Error, errorMessage);
+        }
 
-            try
-            {
-                var connection = _playerConnectionRepository.GetPlayerConnection(playerDetails);
+        public async Task MessageErrorToClients(IGameDetails gameDetails, string errorMessage)
+        {
+            await MessageClients(gameDetails, errorMessage, MessageCode.Error);
+        }
 
-                if (connection != null)
-                {
-                    await _hubContext.Clients.Client(connection.GetConnectionId()).SendAsync("SendMessage", new { content, code });
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(default, ex, "Error occurred while messaging a client.");
-            }
+        public async Task MessageErrorToClient(IPlayerDetails playerDetails, string errorMessage)
+        {
+            var playerConnectionDetails = GetPlayerConnectionDetails(playerDetails);
+
+            await MessageClient(playerConnectionDetails, MessageCode.Error, errorMessage);
         }
     }
 }

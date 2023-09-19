@@ -1,14 +1,18 @@
 ﻿using webapi.Domain.GameDetails;
-using webapi.Domain.MessageDetails;
 using webapi.Domain.PlayerConnectionDetails;
+using webapi.Domain.PlayerDetails;
 
 namespace webapi.Controllers.PlayerConnection
 {
     public interface IPlayerConnectionController
     {
         Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails);
+        IPlayerDetails? GetPlayerDetails(string connectionId);
         Task UpdateClients(IGameDetails gameDetails);
-        Task MessageClients(IMessageDetails messageDetails);
-        Task MessageClient(IMessageDetails messageDetails, string playerName);
+        Task MessageClients(IGameDetails gameDetails, string content, int teamIndex);
+        Task MessageClient(IPlayerDetails playerDetails, string content, int teamIndex);
+        Task MessageErrorToClients(IGameDetails playerDetails, string errorMessage);
+        Task MessageErrorToClient(IPlayerDetails playerDetails, string errorMessage);
+        void RemoveConnection(string connectionId);
     }
 }

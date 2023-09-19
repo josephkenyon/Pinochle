@@ -1,6 +1,6 @@
-﻿using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain.Trick
+namespace webapi.Domain.Tricks
 {
     public class Trick : ITrick
     {
