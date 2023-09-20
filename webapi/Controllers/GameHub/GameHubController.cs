@@ -40,6 +40,27 @@ namespace webapi.Controllers.GameHub
 
         public void OnClientDisconnected(string connectionId)
         {
+            var playerDetails = _playerConnectionController.GetPlayerDetails(connectionId);
+
+            if (playerDetails != null)
+            {
+                var connectedPlayerCount = _playerConnectionController.GetConnectedPlayerCount(playerDetails);
+
+                if (connectedPlayerCount == 0)
+                {
+                    var game = _gameController.GetGame(playerDetails);
+                    if (game != null)
+                    {
+                        var phase = game.GetPhase();
+
+                        if (phase == Phase.Initializing || phase == Phase.Game_Over)
+                        {
+                            _gameController.DeleteGame(playerDetails);
+                        }
+                    }
+                }
+            }
+
             _playerConnectionController.RemoveConnection(connectionId);
         }
 

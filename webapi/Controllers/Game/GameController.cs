@@ -22,6 +22,11 @@ namespace webapi.Controllers.Game
             _gameRepository.AddGame(game);
         }
 
+        public void DeleteGame(IGameDetails gameDetails)
+        {
+            _gameRepository.DeleteGame(gameDetails);
+        }
+
         public IGame? GetGame(IGameDetails gameDetails)
         {
             var gameName = gameDetails.GetGameName();

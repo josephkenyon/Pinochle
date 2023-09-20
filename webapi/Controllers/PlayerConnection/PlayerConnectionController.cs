@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.SignalR;
 using webapi.Controllers.Game;
 using webapi.Controllers.Player;
 using webapi.Controllers.PlayerState;
-using webapi.Data;
 using webapi.Domain.GameDetails;
 using webapi.Domain.PlayerConnectionDetails;
 using webapi.Domain.PlayerDetails;
@@ -77,6 +76,13 @@ namespace webapi.Controllers.PlayerConnection
             await UpdateClients(playerConnectionDetails);
 
             return true;
+        }
+
+        public int GetConnectedPlayerCount(IGameDetails gameDetails)
+        {
+            var connections = _playerConnectionRepository.GetPlayerConnections(gameDetails);
+
+            return connections.Count();
         }
 
         public void RemoveConnection(string connectionId)

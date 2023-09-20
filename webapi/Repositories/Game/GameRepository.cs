@@ -21,6 +21,28 @@ namespace webapi.Repositories.Game
             _gameContext.SaveChanges();
         }
 
+        public void DeleteGame(IGameDetails gameDetails)
+        {
+            var gameName = gameDetails.GetGameName();
+
+            try
+            {
+                var game = _gameContext.Games.SingleOrDefault(game => game.Name == gameName);
+
+                if (game != null)
+                {
+                    _gameContext.Games.Remove(game);
+                    _gameContext.SaveChanges();
+                }
+            }
+            catch (Exception)
+            {
+                _logger.LogError("Error deleting a game with '{GameName}'", gameName);
+                return;
+            }
+        }
+
+
         public IGame? GetGame(string gameName)
         {
             try

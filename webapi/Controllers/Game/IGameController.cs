@@ -6,6 +6,7 @@ namespace webapi.Controllers.Game
     public interface IGameController
     {
         void CreateGame(IGameDetails gameDetails);
+        void DeleteGame(IGameDetails gameDetails);
         IGame? GetGame(IGameDetails gameDetails);
         void UpdateGame(IGameDetails gameDetails, IGame game);
     }

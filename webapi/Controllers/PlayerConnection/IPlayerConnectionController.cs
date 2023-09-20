@@ -7,6 +7,7 @@ namespace webapi.Controllers.PlayerConnection
     public interface IPlayerConnectionController
     {
         Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails);
+        int GetConnectedPlayerCount(IGameDetails gameDetails);
         IPlayerDetails? GetPlayerDetails(string connectionId);
         Task UpdateClients(IGameDetails gameDetails);
         Task MessageClients(IGameDetails gameDetails, string content, int teamIndex);
