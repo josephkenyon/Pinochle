@@ -275,7 +275,12 @@
 }
 
 .score-log-pane {
-  background-color: #33333344 !important;
+  background-color: #222222DD !important;
+  z-index: 100;
+}
+
+.score-log-overlay {
+  z-index: 100;
 }
 
 .players-div {

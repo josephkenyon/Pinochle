@@ -1,4 +1,7 @@
-﻿namespace webapi.Domain
+﻿using webapi.Domain.Bidding;
+using webapi.Domain.Tricks;
+
+namespace webapi.Domain.PlayerState
 {
     public class HeroPlayerState : PlayerState
     {
@@ -20,7 +23,8 @@
         public PlayerState RightOpponentState { get; set; }
         public TrickState TrickState { get; set; }
 
-        public HeroPlayerState() : base() {
+        public HeroPlayerState() : base()
+        {
             TeamOneScoreList = new List<string>();
             TeamTwoScoreList = new List<string>();
             RoundBidResults = new List<RoundBidResult>();

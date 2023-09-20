@@ -1,6 +1,9 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.Game;
+using webapi.Domain.Player;
+using webapi.Domain.Tricks;
+using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Statics
 {
     public static class Utils
     {
@@ -10,7 +13,7 @@ namespace webapi.Domain
 
             var sortedCards = new List<TrickCard>(cards);
 
-            sortedCards.Sort((a,b) => CompareCards(trumpSuit, ledSuit, a, b));
+            sortedCards.Sort((a, b) => CompareCards(trumpSuit, ledSuit, a, b));
 
             return sortedCards.Last().Id;
         }
@@ -54,6 +57,87 @@ namespace webapi.Domain
             return hand;
         }
 
+        public static void StartNewRound(IGame game, IEnumerable<IPlayer> players)
+        {
+            DealCards(players);
+
+            game.StartNewRound();
+
+            var player = players.Single(player => player.GetIndex() == game.GetPlayerTurnIndex());
+
+            foreach (var pl in players)
+            {
+                pl.ResetBiddingState();
+            }
+        }
+
+        public static void DealCards(IEnumerable<IPlayer> players)
+        {
+            var deck = new List<Card>();
+
+            var index = 0;
+            var rng = new Random();
+            var shuffleCount = rng.Next(20, 30);
+
+            Enum.GetValues<Suit>().ToList().ForEach(suit =>
+            {
+                Enum.GetValues<Rank>().ToList().ForEach(rank =>
+                {
+                    deck.Add(new Card(index++, suit, rank));
+                    deck.Add(new Card(index++, suit, rank));
+                });
+            });
+
+            for (int i = 0; i < shuffleCount; i++)
+            {
+                deck = deck.OrderBy(card => rng.Next()).ToList();
+            }
+
+            index = 0;
+            var startingIndex = 0;
+            foreach (var player in players)
+            {
+                var cards = new List<Card>();
+                for (int i = startingIndex; i < startingIndex + 12; i++)
+                {
+                    cards.Add(deck[i]);
+                }
+
+                index++;
+                if (index > 3)
+                {
+                    index = 0;
+                }
+
+                cards.Sort((a, b) =>
+                {
+                    if ((int)a.Suit > (int)b.Suit)
+                    {
+                        return 1;
+                    }
+                    else if ((int)a.Suit < (int)b.Suit)
+                    {
+                        return -1;
+                    }
+
+                    if ((int)a.Rank > (int)b.Rank)
+                    {
+                        return 1;
+                    }
+                    else if ((int)a.Rank < (int)b.Rank)
+                    {
+                        return -1;
+                    }
+
+                    return 0;
+                });
+
+                player.DealCards(cards);
+
+                startingIndex += 12;
+            }
+        }
+
         public static int CompareCards(Suit trumpSuit, Suit ledSuit, TrickCard card1, TrickCard card2)
         {
             var suitOneValue = GetSuitValue(trumpSuit, ledSuit, card1.Suit);
@@ -90,7 +174,7 @@ namespace webapi.Domain
         public static int GetSuitValue(Suit trumpSuit, Suit ledSuit, Suit suit)
         {
             var trumpWasLed = trumpSuit == ledSuit;
-            
+
             if (trumpWasLed)
             {
                 return suit == trumpSuit ? 1 : 0;
@@ -110,7 +194,7 @@ namespace webapi.Domain
             return 0;
         }
 
-        public static TrickState GetTrickState(Trick trick, int playerIndex)
+        public static TrickState GetTrickState(ITrick trick, int playerIndex)
         {
             var trickState = new TrickState();
 
@@ -171,7 +255,7 @@ namespace webapi.Domain
         public static Card GetCardFromId(int id)
         {
             var suit = (Suit)(id / 12);
-            var rank = (Rank)((id - ((int) suit) * 12) / 2);
+            var rank = (Rank)((id - (int)suit * 12) / 2);
 
             return new Card(id, suit, rank);
         }

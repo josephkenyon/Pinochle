@@ -1,5 +1,6 @@
 using webapi.Domain;
-using static webapi.Domain.Enums;
+using webapi.Domain.Meld;
+using static webapi.Domain.Statics.Enums;
 
 namespace tests
 {

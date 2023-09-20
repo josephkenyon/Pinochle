@@ -1,29 +1,53 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.PlayerDetails;
+using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Player
 {
-    public class Player
+    public class Player : IPlayer
     {
+        public IPlayerDetails GetPlayerDetails() => new PlayerDetails.PlayerDetails(GameName, Name);
         public string Name { get; set; }
-        public string GameName { get; set;}
+        public string GameName { get; set; }
         public int PlayerIndex { get; set; }
         public bool Passed { get; set; }
         public bool Ready { get; set; }
         public int LastBid { get; set; }
         public string? HandString { get; set; }
-        public Game? Game { get; set; }
 
-        public Player(string name, string gameName) {
-            Name = name;
+        public Player(string gameName, string name)
+        {
             GameName = gameName;
+            Name = name;
         }
 
-        public void SetHand(List<Card> cards)
-        {
-            var cardStringList = new List<string>();
-            cardStringList.AddRange(cards.Select(card => $"{card.Id}:{card.Suit}:{card.Rank}"));
+        public int GetIndex() => PlayerIndex;
 
-            HandString = string.Join(";", cardStringList);
+        public int GetTeamIndex() => (PlayerIndex == 0 || PlayerIndex == 2) ? 0 : 1;
+
+        public int GetLastBid() => LastBid;
+
+        public bool GetIsReady() => Ready;
+        public void SetIsReady(bool ready)
+        {
+            Ready = ready;
+        }
+
+        public bool GetPassed() => Passed;
+
+        public string GetName() => Name;
+
+        public string GetGameName() => GameName;
+
+        public void Bid(int bid)
+        {
+            LastBid = bid;
+            Passed = bid == -1;
+        }
+
+        public void ResetBiddingState()
+        {
+            LastBid = 0;
+            Passed = false;
         }
 
         public List<Card> GetHand()
@@ -48,6 +72,14 @@ namespace webapi.Domain
             }));
 
             return cardsList;
+        }
+
+        public void DealCards(List<Card> cards)
+        {
+            var cardStringList = new List<string>();
+            cardStringList.AddRange(cards.Select(card => $"{card.Id}:{card.Suit}:{card.Rank}"));
+
+            HandString = string.Join(";", cardStringList);
         }
 
         public void RemoveCard(int id)

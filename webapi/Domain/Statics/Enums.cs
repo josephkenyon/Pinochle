@@ -1,4 +1,4 @@
-﻿namespace webapi.Domain
+﻿namespace webapi.Domain.Statics
 {
     public static class Enums
     {

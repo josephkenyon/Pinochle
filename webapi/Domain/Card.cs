@@ -1,4 +1,5 @@
-﻿using static webapi.Domain.Enums;
+﻿using webapi.Domain.Tricks;
+using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Domain
 {

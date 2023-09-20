@@ -1,6 +1,6 @@
-﻿using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Bidding
 {
     public class TrumpDeclarationData
     {
@@ -8,7 +8,8 @@ namespace webapi.Domain
         public string GameName { get; set; }
         public string PlayerName { get; set; }
 
-        public TrumpDeclarationData(string gameName, string playerName, Suit trumpSuit) {
+        public TrumpDeclarationData(string gameName, string playerName, Suit trumpSuit)
+        {
             TrumpSuit = trumpSuit;
             GameName = gameName;
             PlayerName = playerName;

@@ -1,6 +1,6 @@
-﻿using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Tricks
 {
     public class TrickCard
     {
@@ -9,7 +9,8 @@ namespace webapi.Domain
         public int Id { get; set; }
         public int PlayedIndex { get; set; }
 
-        public TrickCard(int id, Suit suit, Rank rank, int playedIndex) {
+        public TrickCard(int id, Suit suit, Rank rank, int playedIndex)
+        {
             Id = id;
             Suit = suit;
             Rank = rank;

@@ -1,8 +1,8 @@
-﻿using static webapi.Domain.Enums;
+﻿using static webapi.Domain.Statics.Enums;
 
-namespace webapi.Domain
+namespace webapi.Domain.Tricks
 {
-    public class Trick
+    public class Trick : ITrick
     {
         public string GameName { get; set; }
         public Suit TrumpSuit { get; set; }
@@ -14,6 +14,8 @@ namespace webapi.Domain
             CardsString = "";
             GameName = "Unknown";
         }
+
+        public Suit GetTrumpSuit() => TrumpSuit;
 
         public void PlayCard(Card card, int playerId)
         {
