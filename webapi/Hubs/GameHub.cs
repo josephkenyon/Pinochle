@@ -2,6 +2,7 @@
 using webapi.Controllers.GameHub;
 using webapi.Domain.PlayerConnectionDetails;
 using webapi.Domain.PlayerDetails;
+using webapi.Domain.Statics;
 
 namespace webapi.Hubs
 {
@@ -21,10 +22,11 @@ namespace webapi.Hubs
                 Context.ConnectionId
             );
 
-            var success = await _gameHubController.JoinGame(playerConnectionDetails);
+            var errorMessage = await _gameHubController.JoinGame(playerConnectionDetails);
 
-            if (!success)
+            if (errorMessage != null)
             {
+                await Clients.Client(Context.ConnectionId).SendAsync("SendMessage", new { content = errorMessage, code = Enums.MessageCode.Error });
                 Context.Abort();
             }
         }

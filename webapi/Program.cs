@@ -14,12 +14,8 @@ using webapi.Repositories.Trick;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<GameContext>(options => options.UseInMemoryDatabase("PinochleGames"));
 
 builder.Services.AddScoped<IGameHubController, GameHubController>();
@@ -34,7 +30,6 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerConnectionRepository, PlayerConnectionRepository>();
 builder.Services.AddScoped<ITrickRepository, TrickRepository>();
 
-builder.Services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
@@ -47,10 +42,10 @@ app.UseCors(x => x.AllowAnyMethod()
            .SetIsOriginAllowed(origin => true)
            .AllowCredentials());
 
-app.UseAuthorization();
-
-app.MapHub<GameHub>("/game");
+app.MapHub<GameHub>("/hub");
 app.UseHttpsRedirection();
+
+app.UseAuthorization();
 
 app.MapControllers();
 

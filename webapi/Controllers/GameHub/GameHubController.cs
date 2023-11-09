@@ -33,7 +33,7 @@ namespace webapi.Controllers.GameHub
             _trickController = trickController;
         }
 
-        public async Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails)
+        public async Task<string?> JoinGame(IPlayerConnectionDetails playerConnectionDetails)
         {
             return await _playerConnectionController.JoinGame(playerConnectionDetails);
         }
@@ -172,7 +172,7 @@ namespace webapi.Controllers.GameHub
                 await _playerConnectionController.MessageErrorToClient(playerDetails, "You must bid higher than the current bid.");
                 return;
             }
-            else if (currentBid > 30 && (bid % 5 != 0))
+            else if ((currentBid >= 30 && (bid % 5 != 0)) && !bidIsPass)
             {
                 await _playerConnectionController.MessageErrorToClient(playerDetails, "Above 30 you must bid up by increments of 5.");
                 return;

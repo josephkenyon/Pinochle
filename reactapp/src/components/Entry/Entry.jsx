@@ -1,5 +1,5 @@
 import '../../App.css'
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setConnection, setGameName, setPlayerName } from '../../slices/appState/appStateSlice';
 import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, setHighlightPlayer, setIsReady, setLastBid, setLeftOpponentState, setRightOpponentState, setRoundBidResults, setShowBiddingBox,
@@ -8,6 +8,7 @@ import { setAllyState, setCurrentBid, setDisplayedCards, setHand, setHasState, s
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import ConnectionService from '../../services/connectionService';
 import { toast } from 'react-toastify';
+import { TailSpin } from 'react-loader-spinner';
 
 export default function Entry() {
     const dispatch = useDispatch()
@@ -15,11 +16,27 @@ export default function Entry() {
     const gameName = useSelector((state) => state.appState.gameName)
     const playerName = useSelector((state) => state.appState.playerName)
 
-    const joinGame = async () => {
-        const connection = new HubConnectionBuilder()
-            .withUrl("https://73.216.200.18:7177/game")
-            .configureLogging(LogLevel.Information)
-            .build();
+    const [submitting, setSubmitting] = useState(false)
+
+    const joinGame = async (e) => {
+        let connection;
+
+        try {
+            e.preventDefault();
+
+            setSubmitting(true)
+
+            connection = new HubConnectionBuilder()
+                .withUrl("https://www.playpinochle.games:7177/hub")
+                .configureLogging(LogLevel.Information)
+                .build();
+        } catch (err) {
+            console.error(err)
+            sendMessage(err.toString())
+            console.log(err)
+        } finally {
+            setSubmitting(false)
+        }
 
         connection.on("ErrorMessage", (message) => {
             console.error(message)
@@ -31,9 +48,6 @@ export default function Entry() {
         })
 
         connection.on("UpdatePlayerState", (newState) => {
-            console.debug("recieving player state update...")
-            console.debug(newState)
-
             dispatch(setTeamOneName(newState.teamOneScoreList.shift()))
             dispatch(setTeamTwoName(newState.teamTwoScoreList.shift()))
             dispatch(setTeamOneScoreLog(newState.teamOneScoreList))
@@ -66,6 +80,7 @@ export default function Entry() {
 
         connection.onclose(_ => {
             ConnectionService.setConnection(null)
+            
             dispatch(setConnection(false))
             dispatch(setHasState(false))
         })
@@ -73,7 +88,7 @@ export default function Entry() {
         try {
             await connection.start()
         } catch (e) {
-            this.errorMessage("Unable to connect to the server.")
+            console.error("Unable to connect to the server.")
             return;
         }
 
@@ -83,7 +98,7 @@ export default function Entry() {
         try {
             await connection.invoke("JoinGame", { GameName: gameName, PlayerName: playerName })
         } catch (e) {
-            this.errorMessage("An error occurred trying to join the game.")
+            console.error("An error occurred trying to join the game.")
         }
     }
 
@@ -113,18 +128,27 @@ export default function Entry() {
     }
 
     return (
-        <div className="vertical-div entry-div">
-            <h1 className="mb-5" id="tabelLabel">Pinochle</h1>
+        <form className="vertical-div entry-div" onSubmit={joinGame}>
+            <div className="entry-title-div">Pinochle</div>
             <input className="entry-input" type="text" value={gameName} placeholder="Enter a game name"
                 onChange={event => dispatch(setGameName(event.target.value.toUpperCase()))}/>
 
             <input className="entry-input" type="text" value={playerName} placeholder="Enter your player name"
                 onChange={event => dispatch(setPlayerName(event.target.value))}/>
 
-            <button className="entry-button" onClick={() => joinGame()}>
+            <button className="entry-button" disabled={submitting} type="submit">
                 Join Game
+                <TailSpin
+                    height="30"
+                    width="30"
+                    color="#ffffff"
+                    ariaLabel="tail-spin-loading"
+                    radius="1"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={submitting}/>
             </button>
-        </div>
+        </form>
     );
 }
 

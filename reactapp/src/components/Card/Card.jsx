@@ -20,7 +20,6 @@ export default function Card({suitIndex, rankIndex, zIndex, small, selected, onC
                 onClick();
             }
         } else if (event.detail == 2) {
-            console.log('2')
             if (onDoubleClick) {
                 onDoubleClick();
             }

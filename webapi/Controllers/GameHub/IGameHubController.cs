@@ -4,7 +4,7 @@ namespace webapi.Controllers.GameHub
 {
     public interface IGameHubController
     {
-        Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails);
+        Task<string?> JoinGame(IPlayerConnectionDetails playerConnectionDetails);
         void OnClientDisconnected(string connectionId);
         Task SwapPlayerPosition(string connectionId, string playerName);
         Task DeclareReady(string connectionId, bool ready);

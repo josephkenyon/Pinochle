@@ -37,13 +37,24 @@ namespace webapi.Controllers.PlayerConnection
             _hubContext = hubContext;
         }
 
-        public async Task<bool> JoinGame(IPlayerConnectionDetails playerConnectionDetails)
+        public async Task<string?> JoinGame(IPlayerConnectionDetails playerConnectionDetails)
         {
+            var gameName = playerConnectionDetails.GetGameName();
+            if (string.IsNullOrWhiteSpace(gameName))
+            {
+                return "Please enter a game name.";
+            }
+
+            var playerName = playerConnectionDetails.GetPlayerName();
+            if (string.IsNullOrWhiteSpace(playerName))
+            {
+                return "Please enter a player name.";
+            }
+
             var existingClient = _playerConnectionRepository.GetPlayerConnection(playerConnectionDetails);
             if (existingClient != null)
             {
-                await MessageError(playerConnectionDetails, "Someone is already playing in that game under than name.");
-                return false;
+                return "Someone is already playing in that game under than name.";
             }
 
             var game = _gameController.GetGame(playerConnectionDetails);
@@ -66,8 +77,7 @@ namespace webapi.Controllers.PlayerConnection
                 }
                 else
                 {
-                    await MessageError(playerConnectionDetails, gameIsFull ? "That game is full." : "You cannot add a new player to a game already in progress.");
-                    return false;
+                    return gameIsFull ? "That game is full." : "You cannot add a new player to a game already in progress.";
                 }
             }
 
@@ -75,7 +85,7 @@ namespace webapi.Controllers.PlayerConnection
 
             await UpdateClients(playerConnectionDetails);
 
-            return true;
+            return null;
         }
 
         public int GetConnectedPlayerCount(IGameDetails gameDetails)
