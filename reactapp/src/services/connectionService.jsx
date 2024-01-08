@@ -8,4 +8,8 @@ export default class ConnectionService {
     static setConnection(connection) {
         this.connection = connection
     }
+
+    static closeConnection() {
+        this.connection.stop()
+    }
 }

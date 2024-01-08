@@ -1,6 +1,5 @@
 ﻿using webapi.Domain.Bidding;
 using webapi.Domain.GameDetails;
-using webapi.Domain.PlayerDetails;
 using static webapi.Domain.Statics.Enums;
 
 namespace webapi.Domain.Game

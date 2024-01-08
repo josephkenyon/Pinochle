@@ -379,6 +379,13 @@
 .show-log-button-div {
   font-size: 1em;
   padding-left: 0.4em;
+  margin-right: 1em;
+}
+
+.leave-game-button {
+  font-size: 1em;
+  padding-left: 0.4em;
+  margin-right: 1em;
 }
 
 .game-score-div {

@@ -96,7 +96,14 @@ namespace webapi.Domain.Game
         {
             var phaseInt = (int) Phase;
 
-            Phase = (Phase) Enum.ToObject(typeof(Phase), phaseInt + 1);
+            if (Phase == Phase.RoundEnd)
+            {
+                Phase = Phase.Initializing;
+            }
+            else
+            {
+                Phase = (Phase)Enum.ToObject(typeof(Phase), phaseInt + 1);
+            }
         }
 
         public void SetCurrentBid(int bid)
@@ -106,6 +113,16 @@ namespace webapi.Domain.Game
 
         public void StartNewRound()
         {
+            if (Phase == Phase.Initializing)
+            {
+                TeamOneScoresString = "";
+                TeamTwoScoresString = "";
+                TeamOneCardsTakenIds = "";
+                TeamTwoCardsTakenIds = "";
+                RoundBidResults = "";
+                StartingPlayerTurnIndex = -1;
+            }
+
             Phase = Phase.Bidding;
 
             StartingPlayerTurnIndex++;

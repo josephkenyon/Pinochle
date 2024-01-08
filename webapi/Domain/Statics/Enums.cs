@@ -27,8 +27,7 @@
             Declaring_Trump,
             Meld,
             Playing,
-            RoundEnd,
-            Game_Over
+            RoundEnd
         }
 
         public enum MessageCode

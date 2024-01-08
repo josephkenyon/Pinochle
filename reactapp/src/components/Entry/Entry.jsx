@@ -27,15 +27,12 @@ export default function Entry() {
             setSubmitting(true)
 
             connection = new HubConnectionBuilder()
-                .withUrl("https://www.playpinochle.games:7177/hub")
+                .withUrl("https://www.kenyonapps.com:7177/pinochle/hub")
                 .configureLogging(LogLevel.Information)
                 .build();
         } catch (err) {
             console.error(err)
-            sendMessage(err.toString())
-            console.log(err)
-        } finally {
-            setSubmitting(false)
+            sendMessage(err.toString(), 2)
         }
 
         connection.on("ErrorMessage", (message) => {
@@ -79,27 +76,37 @@ export default function Entry() {
         })
 
         connection.onclose(_ => {
-            ConnectionService.setConnection(null)
-            
-            dispatch(setConnection(false))
-            dispatch(setHasState(false))
+            dumpConnection()
         })
 
         try {
             await connection.start()
         } catch (e) {
             console.error("Unable to connect to the server.")
+            dumpConnection()
+            setSubmitting(false)
+            sendMessage(e.toString(), 2)
             return;
         }
 
-        ConnectionService.setConnection(connection)
-        dispatch(setConnection(true))
-
         try {
             await connection.invoke("JoinGame", { GameName: gameName, PlayerName: playerName })
+
+            
+            ConnectionService.setConnection(connection)
+            dispatch(setConnection(true))
         } catch (e) {
             console.error("An error occurred trying to join the game.")
+             
+            dumpConnection()
         }
+    }
+
+    function dumpConnection() {
+        ConnectionService.setConnection(null)
+            
+        dispatch(setConnection(false))
+        dispatch(setHasState(false))
     }
 
     function sendMessage(message, code) {

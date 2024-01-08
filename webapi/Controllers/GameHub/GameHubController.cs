@@ -53,7 +53,7 @@ namespace webapi.Controllers.GameHub
                     {
                         var phase = game.GetPhase();
 
-                        if (phase == Phase.Initializing || phase == Phase.Game_Over)
+                        if (phase == Phase.Initializing)
                         {
                             _gameController.DeleteGame(playerDetails);
                         }
@@ -521,28 +521,28 @@ namespace webapi.Controllers.GameHub
                 var teamOneScore = game.GetTotalScore(0);
                 var teamTwoScore = game.GetTotalScore(1);
 
-                if (tookBidTeamIndex == 0 && teamOneScore > 100)
+                if (tookBidTeamIndex == 0 && teamOneScore > 10)
                 {
                     game.IncrementPhase();
 
                     var teamName = GetTeamName(playerConnectionData, 0);
                     await _playerConnectionController.MessageClients(playerConnectionData, $"{teamName} win!", tookBidTeamIndex);
                 }
-                else if (tookBidTeamIndex == 1 && teamTwoScore > 100)
+                else if (tookBidTeamIndex == 1 && teamTwoScore > 10)
                 {
                     game.IncrementPhase();
 
                     var teamName = GetTeamName(playerConnectionData, 1);
                     await _playerConnectionController.MessageClients(playerConnectionData, $"{teamName} win!", tookBidTeamIndex);
                 }
-                else if (teamOneScore < 0 && teamTwoScore > 100)
+                else if (teamOneScore < 0 && teamTwoScore > 10)
                 {
                     game.IncrementPhase();
 
                     var teamName = GetTeamName(playerConnectionData, 1);
                     await _playerConnectionController.MessageClients(playerConnectionData, $"{teamName} win!", tookBidTeamIndex);
                 }
-                else if (teamTwoScore < 0 && teamOneScore > 100)
+                else if (teamTwoScore < 0 && teamOneScore > 10)
                 {
                     game.IncrementPhase();
 
